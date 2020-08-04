@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-4
-// @Version: 1.0.0
+// @Version: 1.0.1
 
 package main
 
@@ -63,7 +63,7 @@ func Device() map[string]string {
 		"system":            "lsb_release -a | grep Description:",
 		"arch":              "arch",
 		"uname":             "uname -a",
-		"hardware":          "cat /proc/cpuinfo | grep Hardware | awk '{ print $3}'",
+		"cpu_revision":      "cat /proc/cpuinfo | grep Revision | awk '{ print $3}'",
 		"model":             "cat /proc/cpuinfo | grep Model",
 		"cpu_model_name":    "lscpu | grep 'Model name' | awk '{ print $3}'",
 		"cpu_cores":         "lscpu | grep 'CPU(s):' | awk '{ print $2}'",
@@ -95,6 +95,7 @@ func Device() map[string]string {
 	device["ip"] = strings.Split(device["ip"], "/")[0]
 	device["now_time"] = time.Now().Format("2006-01-02 15:04:05")
 	device["system"] = strings.Replace(strings.Split(device["system"], ":")[1], " GNU/Linux ", " ", -1)
+	device["cpu_revision"] = "Revision-" + device["cpu_revision"]
 
 	loadAverage := strings.Split(device["load_average"], " ")
 	device["load_average_1m"] = loadAverage[0]

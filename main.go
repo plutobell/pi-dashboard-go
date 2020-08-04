@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-4
-// @Version: 1.0.0
+// @Version: 1.0.1
 
 package main
 
@@ -16,7 +16,7 @@ import (
 
 const (
 	//VERSION 版本信息
-	VERSION string = "1.0.0"
+	VERSION string = "1.0.1"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码

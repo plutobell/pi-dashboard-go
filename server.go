@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-4
-// @Version: 1.0.0
+// @Version: 1.0.1
 
 package main
 
@@ -88,6 +88,7 @@ func Server() {
 
 	// 启动服务
 	e.HideBanner = true
+	fmt.Println("⇨ Pi Dashboard Go  v" + VERSION)
 	e.Logger.Fatal(e.Start(port))
 }
 
