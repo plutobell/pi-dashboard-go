@@ -11,7 +11,7 @@ Thanks to the characteristics of the Golang language, the deployment of **Pi Das
 
 #### Download
 
-Just download the executable file from the project **[Releases](https://github.com/plutobell/pi-dashboard-go/releases) **, **no other dependencies**.
+Just download the executable file from the project **[Releases](https://github.com/plutobell/pi-dashboard-go/releases)**, **no other dependencies**.
 
 #### Authority
 
