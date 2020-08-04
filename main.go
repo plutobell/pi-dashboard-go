@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-4
-// @Version: 1.0.1
+// @Last modify: 2020-8-5
+// @Version: 1.0.2
 
 package main
 
@@ -15,8 +15,10 @@ import (
 )
 
 const (
+	//AUTHOR 作者信息
+	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.0.1"
+	VERSION string = "1.0.2"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -45,7 +47,7 @@ func init() {
 	flag.StringVar(&Title, "title", "Pi Dashboard Go", "specify the website title")
 	flag.StringVar(&Net, "net", "lo", "specify the network device")
 	flag.StringVar(&Disk, "disk", "/", "specify the disk")
-	flag.StringVar(&Auth, "auth", "pi:123", "specify username and password")
+	flag.StringVar(&Auth, "auth", USERNAME+":"+PASSWORD, "specify username and password")
 
 	flag.Usage = usage
 }
@@ -72,6 +74,24 @@ func main() {
 			fmt.Println("磁盘不存在")
 			return
 		}
+	}
+	authSlice := strings.Split(Auth, ":")
+	if len(authSlice) != 2 {
+		fmt.Println("Auth格式错误")
+		return
+	} else {
+		if len([]rune(authSlice[0])) > 15 || len([]rune(authSlice[0])) == 0 {
+			fmt.Println("用户名过长")
+			return
+		}
+		if len([]rune(authSlice[1])) > 15 || len([]rune(authSlice[1])) == 0 {
+			fmt.Println("密码过长")
+			return
+		}
+	}
+	if len([]rune(Title)) > 25 {
+		fmt.Println("Title过长")
+		return
 	}
 
 	Server()
