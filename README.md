@@ -64,3 +64,19 @@ Options:
 * [go.rice](https://github.com/GeertJohan/go.rice)
 * [Golang](https://golang.org/)
 
+
+
+## Changelog
+
+**2020-8-5**
+
+* v1.0.2 : 
+  * Improve command line parameter verification
+  * Detail optimization
+  * Add test case device_test.go
+  * New page loading animation
+
+**2020-8-4**
+
+* v1.0.1 : Bug fixes, detail optimization
+* v1.0.0
