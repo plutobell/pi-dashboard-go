@@ -27,7 +27,7 @@ chmod +x pi-dashboard-go
 
 #### Usage
 
-**Pi Dashboard Go ** can be configured via command line parameters
+**Pi Dashboard Go** can be configured via command line parameters：
 
 ```
 Pi Dashboard Go  version: 1.0.0
