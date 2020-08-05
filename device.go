@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-5
-// @Version: 1.0.3
+// @Last modify: 2020-8-6
+// @Version: 1.0.4
 
 package main
 
@@ -54,33 +54,33 @@ func Device() map[string]string {
 	//Command 命令列表
 	device := make(map[string]string)
 	var command map[string]string = map[string]string{
-		"ip":                "ip a | grep -w inet | grep -v inet6 | grep -v 127 | awk '{ print $2 }'",
-		"uptime":            "cat /proc/uptime | awk '{ print $1}'",
-		"online_user_count": "who -q | awk 'NR==2{print $2}'",
-		"load_average":      "cat /proc/loadavg | awk '{print $1,$2,$3,$4}'",
-		"current_user":      "whoami",
-		"hostname":          "hostname",
-		"os":                "uname -o",
-		"system":            "lsb_release -a | grep Description:",
-		"arch":              "arch",
-		"uname":             "uname -a",
-		"cpu_revision":      "cat /proc/cpuinfo | grep Revision | awk '{ print $3}'",
-		"model":             "cat /proc/cpuinfo | grep Model",
-		"cpu_model_name":    "lscpu | grep 'Model name' | awk '{ print $3}'",
-		"cpu_cores":         "lscpu | grep 'CPU(s):' | awk '{ print $2}'",
-		"cpu_status":        "top -bn1 | grep -w '%Cpu(s):' | awk '{ print $2,$4,$6,$8,$10,$12,$14,$16}'",
-		"cpu_temperature":   "cat /sys/class/thermal/thermal_zone0/temp",
-		"cpu_freq":          "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
-		"memory_total":      "cat /proc/meminfo | grep -w MemTotal: | awk '{ print $2}'",
-		"memory_free":       "cat /proc/meminfo | grep -w MemFree: | awk '{ print $2}'",
-		"memory_available":  "cat /proc/meminfo | grep -w MemAvailable: | awk '{ print $2}'",
-		"memory_buffers":    "cat /proc/meminfo | grep -w Buffers: | awk '{ print $2}'",
-		"memory_cached":     "cat /proc/meminfo | grep -w Cached: | awk '{ print $2}'",
-		"swap_total":        "cat /proc/meminfo | grep SwapTotal: | awk '{ print $2}'",
-		"swap_free":         "cat /proc/meminfo | grep SwapFree: | awk '{ print $2}'",
-		"disk":              "df " + Disk + " | awk 'NR==2{print $3,$4}'",
-		"net_status_lo":     "cat /proc/net/dev | grep lo: | awk '{ print $2,$3,$10,$11}'",
-		"net_status":        "cat /proc/net/dev | grep " + Net + ": | awk '{ print $2,$3,$10,$11}'",
+		"ip":               "ip a | grep -w inet | grep -v inet6 | grep -v 127 | awk '{ print $2 }'",
+		"uptime":           "cat /proc/uptime | awk '{ print $1}'",
+		"login_user_count": "who -q | awk 'NR==2{print $2}'",
+		"load_average":     "cat /proc/loadavg | awk '{print $1,$2,$3,$4}'",
+		"current_user":     "whoami",
+		"hostname":         "hostname",
+		"os":               "uname -o",
+		"system":           "lsb_release -a | grep Description:",
+		"arch":             "arch",
+		"uname":            "uname -a",
+		"cpu_revision":     "cat /proc/cpuinfo | grep Revision | awk '{ print $3}'",
+		"model":            "cat /proc/cpuinfo | grep Model",
+		"cpu_model_name":   "lscpu | grep 'Model name' | awk '{ print $3}'",
+		"cpu_cores":        "lscpu | grep 'CPU(s):' | awk '{ print $2}'",
+		"cpu_status":       "top -bn1 | grep -w '%Cpu(s):' | awk '{ print $2,$4,$6,$8,$10,$12,$14,$16}'",
+		"cpu_temperature":  "cat /sys/class/thermal/thermal_zone0/temp",
+		"cpu_freq":         "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
+		"memory_total":     "cat /proc/meminfo | grep -w MemTotal: | awk '{ print $2}'",
+		"memory_free":      "cat /proc/meminfo | grep -w MemFree: | awk '{ print $2}'",
+		"memory_available": "cat /proc/meminfo | grep -w MemAvailable: | awk '{ print $2}'",
+		"memory_buffers":   "cat /proc/meminfo | grep -w Buffers: | awk '{ print $2}'",
+		"memory_cached":    "cat /proc/meminfo | grep -w Cached: | awk '{ print $2}'",
+		"swap_total":       "cat /proc/meminfo | grep SwapTotal: | awk '{ print $2}'",
+		"swap_free":        "cat /proc/meminfo | grep SwapFree: | awk '{ print $2}'",
+		"disk":             "df " + Disk + " | awk 'NR==2{print $3,$4}'",
+		"net_status_lo":    "cat /proc/net/dev | grep lo: | awk '{ print $2,$3,$10,$11}'",
+		"net_status":       "cat /proc/net/dev | grep " + Net + ": | awk '{ print $2,$3,$10,$11}'",
 	}
 	for k, v := range command {
 		res := Popen(v)
@@ -92,7 +92,7 @@ func Device() map[string]string {
 	device["uptime"] = resolveTime(device["uptime"])
 	device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 2, 64)
 	device["model"] = strings.Split(device["model"], ":")[1]
-	device["online_user_count"] = strings.Split(device["online_user_count"], "=")[1]
+	device["login_user_count"] = strings.Split(device["login_user_count"], "=")[1]
 	device["ip"] = strings.Split(device["ip"], "/")[0]
 	device["now_time"] = time.Now().Format("2006-01-02 15:04:05")
 	device["system"] = strings.Replace(strings.Split(device["system"], ":")[1], " GNU/Linux ", " ", -1)
@@ -191,7 +191,6 @@ func Device() map[string]string {
 
 	device["memory_used"] = strconv.FormatFloat(memoryTotal-memoryFree, 'f', 2, 64)
 	device["memory_real_used"] = strconv.FormatFloat(memoryTotal-memoryAvailable, 'f', 2, 64)
-	device["memory_cached_used"] = strconv.FormatFloat(memoryTotal-memoryCached, 'f', 2, 64)
 	device["memory_percent"] = strconv.FormatFloat(100*(memoryTotal-memoryFree)/memoryTotal, 'f', 2, 64)
 	device["memory_real_percent"] = strconv.FormatFloat(100*(memoryTotal-memoryAvailable)/memoryTotal, 'f', 2, 64)
 	device["memory_cached_percent"] = strconv.FormatFloat(100*(memoryCached)/memoryTotal, 'f', 2, 64)
