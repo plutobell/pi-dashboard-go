@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-5
-// @Version: 1.0.3
+// @Last modify: 2020-8-6
+// @Version: 1.0.4
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function () {
@@ -318,7 +318,10 @@ $(document).ready(function() {
 
     setInterval(function() {
         $.getJSON('?ajax=true', function(data){
-
+            $("#login-users").text(data.login_user_count);
+            $("#hostname").text(data.hostname);
+            $("#uname").text(data.uname);
+            $("#system").text(data.system);
             $("#time").text(data.now_time_hms);
             $("#date").text(data.now_time_ymd);
             $("#uptime").text(data.uptime);
@@ -373,7 +376,7 @@ $(document).ready(function() {
             }
             if (chartCache) {
                 point = chartCache.series[0].points[0];
-                point.update(parseFloat(window.dashboard.memory_cached_used));
+                point.update(parseFloat(window.dashboard.memory_cached));
             }
             if (chartRAM_real) {
                 point = chartRAM_real.series[0].points[0];
