@@ -4,6 +4,7 @@
     <title>{{.site_title}}</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#222222" />
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
     <link href="assets/bootstrap.min.css" rel="stylesheet">
@@ -157,8 +158,9 @@
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#CEFCA3; border-radius: 3px;"><div class="label">IP</div><div id="hostip" style="font-size: 150%; font-weight: bolder;">{{.ip}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#9DCFFB; border-radius: 3px;"><div class="label">TIME</div><div id="time" style="font-size: 150%; font-weight: bolder;">{{.now_time_hms}}</div><div id="date">{{.now_time_ymd}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FFFECD; border-radius: 3px;"><div class="label">UPTIME</div><div id="uptime" style="font-size: 120%; font-weight: bolder;">{{.uptime}}</div></div>
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">USER</div><div id="user" style="font-size: 120%; font-weight: bolder;">{{.current_user}}</div></div>
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">OS</div><div id="os" style="font-size: 120%; font-weight: bolder;">{{.os}}</div></div>
+                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">LOGIN USER(S)</div><div id="login-users" style="font-size: 120%; font-weight: bolder;">{{.login_user_count}}</div></div>
+                    <!-- <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">USER</div><div id="user" style="font-size: 120%; font-weight: bolder;">{{.current_user}}</div></div> -->
+                    <!-- <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">OS</div><div id="os" style="font-size: 120%; font-weight: bolder;">{{.os}}</div></div> -->
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">SYSTEM</div><div id="system" style="font-size: 120%; font-weight: bolder;">{{.system}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">HOSTNAME</div><div id="hostname" style="font-size: 110%; font-weight: bolder;">{{.hostname}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div id="uname" style="word-break:break-all; word-wrap:break-word; font-size: 12px; color: #999999; padding: 0 10px;">{{.uname}}</div></div>
@@ -319,7 +321,7 @@
                                 <div style="height: 80px; margin-top: 10px;">
                                     <div class="text-center" style="padding: 2px 0 2px 0; background-color: #CCCCCC;"><strong><span id="net-interface-2-name">{{.net_dev_name}}</span></strong></div>
                                     <div class="text-center" style="padding: 10px 0 10px 0; background-color: #9BCEFD;"><span id="net-interface-2-total-in">{{.net_status_in_data}}</span>MB<br /><small class="label">IN</small></div>
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #CDFD9F;"><span id="net-interface-2-total-out">{.net_status_out_data}</span>MB<br /><small class="label">OUT</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #CDFD9F;"><span id="net-interface-2-total-out">{{.net_status_out_data}}</span>MB<br /><small class="label">OUT</small></div>
                                 </div>
                             </div>
                         </div>
@@ -357,7 +359,7 @@
 @Description: Golang implementation of pi-dashboard
 @Author: github.com/plutobell
 @Creation: 2020-8-1
-@Last modify: 2020-8-5
-@Version: 1.0.3 -->
+@Last modify: 2020-8-6
+@Version: 1.0.4 -->
 </body>
 </html>
