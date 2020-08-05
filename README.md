@@ -70,6 +70,9 @@ Options:
 
 **2020-8-5**
 
+* v1.0.3 : 
+  * Newly added time formatting function resolveTime
+  * Detail optimization
 * v1.0.2 : 
   * Improve command line parameter verification
   * Detail optimization

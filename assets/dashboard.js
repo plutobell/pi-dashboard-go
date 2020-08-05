@@ -3,8 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-5
-// @Version: 1.0.2
-
+// @Version: 1.0.3
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function () {
@@ -322,7 +321,7 @@ $(document).ready(function() {
 
             $("#time").text(data.now_time_hms);
             $("#date").text(data.now_time_ymd);
-            $("#uptime").text(uptimeFormat(data.uptime));
+            $("#uptime").text(data.uptime);
             $("#cpu-temp").text(data.cpu_temperature);
             $("#cpu-freq").text(data.cpu_freq);
             $("#cpu-stat-idl").text(data.cpu_status_idle);
@@ -426,26 +425,3 @@ $(document).ready(function() {
     }, 1000);
 }
 )
-
-function uptimeFormat(str){
-    var uptime = "";
-    var min = parseInt(str) / 60;
-    var hours = min / 60;
-    var days = Math.floor(hours / 24);
-    var hours = Math.floor(hours - (days * 24));
-    min = Math.floor(min - (days * 60 * 24) - (hours * 60));
-
-    if (days !== 0){
-        if(days == 1){
-            uptime = days+" day ";
-        }
-        else{
-            uptime = days+" days ";
-        }
-    }
-    if (hours !== 0){
-        uptime = uptime+hours+":";
-    }
-
-    return uptime=uptime+min;
-}

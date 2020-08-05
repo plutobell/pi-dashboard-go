@@ -3,13 +3,14 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-5
-// @Version: 1.0.2
+// @Version: 1.0.3
 
 package main
 
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -88,8 +89,8 @@ func Device() map[string]string {
 	}
 
 	cpuTemperature, _ := strconv.Atoi(device["cpu_temperature"])
+	device["uptime"] = resolveTime(device["uptime"])
 	device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 2, 64)
-
 	device["model"] = strings.Split(device["model"], ":")[1]
 	device["online_user_count"] = strings.Split(device["online_user_count"], "=")[1]
 	device["ip"] = strings.Split(device["ip"], "/")[0]
@@ -206,4 +207,29 @@ func Device() map[string]string {
 	}
 
 	return device
+}
+
+//格式化时间
+func resolveTime(str string) string {
+	var uptime string
+	strF, _ := strconv.ParseFloat(str, 10)
+	second := int64(strF)
+	var min = second / 60
+	var hours = min / 60
+	var days = int64(math.Floor(float64(hours / 24)))
+	hours = int64(math.Floor(float64(hours - (days * 24))))
+	min = int64(math.Floor(float64(min - (days * 60 * 24) - (hours * 60))))
+
+	if days != 0 {
+		if days == 1 {
+			uptime = strconv.FormatInt(days, 10) + " day "
+		} else {
+			uptime = strconv.FormatInt(days, 10) + " days "
+		}
+	}
+	if hours != 0 {
+		uptime = uptime + strconv.FormatInt(hours, 10) + ":"
+	}
+
+	return uptime + strconv.FormatInt(min, 10)
 }

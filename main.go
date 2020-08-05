@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-5
-// @Version: 1.0.2
+// @Version: 1.0.3
 
 package main
 
@@ -18,7 +18,7 @@ const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.0.2"
+	VERSION string = "1.0.3"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -65,32 +65,32 @@ func main() {
 	}
 	netDevs := Popen("cat /proc/net/dev")
 	if !strings.Contains(netDevs, Net+":") {
-		fmt.Println("网卡不存在")
+		fmt.Println("Network card does not exist")
 		return
 	}
 	diskLists := Popen("blkid")
 	if Disk != "/" {
 		if !strings.Contains(diskLists, Disk+":") {
-			fmt.Println("磁盘不存在")
+			fmt.Println("Disk does not exist")
 			return
 		}
 	}
 	authSlice := strings.Split(Auth, ":")
 	if len(authSlice) != 2 {
-		fmt.Println("Auth格式错误")
+		fmt.Println("Auth format error")
 		return
 	} else {
 		if len([]rune(authSlice[0])) > 15 || len([]rune(authSlice[0])) == 0 {
-			fmt.Println("用户名过长")
+			fmt.Println("Username is too long")
 			return
 		}
 		if len([]rune(authSlice[1])) > 15 || len([]rune(authSlice[1])) == 0 {
-			fmt.Println("密码过长")
+			fmt.Println("Password is too long")
 			return
 		}
 	}
 	if len([]rune(Title)) > 25 {
-		fmt.Println("Title过长")
+		fmt.Println("Title is too long")
 		return
 	}
 
