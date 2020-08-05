@@ -68,6 +68,14 @@ Options:
 
 ## Changelog
 
+**2020-8-6**
+
+* v1.0.4 : 
+  * Adjust Cached calculation method
+  * Added theme-color for mobile browser
+  * Added display login user statistics
+  * Bug fixes and details optimization
+
 **2020-8-5**
 
 * v1.0.3 : 
