@@ -50,7 +50,7 @@
         }
 
         #loading{
-            background: #696969;
+            background: #363636;
             position: fixed;
             left: 0px;
             top: 0px;
@@ -58,8 +58,8 @@
             height: 100%;
             display: block;
             z-index: 20;
-            filter: alpha(opacity=75);
-            opacity: 0.75 !important;
+            filter: alpha(opacity=90);
+            opacity: 0.9 !important;
         }
 
         .spinner {
@@ -153,10 +153,10 @@
         <div class="row">
             <div class="col-md-3">
                 <div style="text-align: center; padding: 20px 0;"><img src="assets/devices/raspberry-pi.png" /></div>
-                <div style="background-color: #E0E0E0; padding: 5px; border-radius: 3px;">
+                <div style="background-color: #E5E6E4; padding: 5px; border-radius: 3px;">
                     <div class="text-center" style="margin:10px; padding: 10px 0 10px 0; border-radius: 3px;"><div id="pimodel" style="font-size: 90%; font-weight: bolder; text-shadow: 0 1px 0 #fff;">{{.model}}</div></div>
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#CEFCA3; border-radius: 3px;"><div class="label">IP</div><div id="hostip" style="font-size: 150%; font-weight: bolder;">{{.ip}}</div></div>
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#9DCFFB; border-radius: 3px;"><div class="label">TIME</div><div id="time" style="font-size: 150%; font-weight: bolder;">{{.now_time_hms}}</div><div id="date">{{.now_time_ymd}}</div></div>
+                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#ADF6B1; border-radius: 3px;"><div class="label">IP</div><div id="hostip" style="font-size: 150%; font-weight: bolder;">{{.ip}}</div></div>
+                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#A3D5FF; border-radius: 3px;"><div class="label">TIME</div><div id="time" style="font-size: 150%; font-weight: bolder;">{{.now_time_hms}}</div><div id="date">{{.now_time_ymd}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FFFECD; border-radius: 3px;"><div class="label">UPTIME</div><div id="uptime" style="font-size: 120%; font-weight: bolder;">{{.uptime}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">LOGIN USER(S)</div><div id="login-users" style="font-size: 120%; font-weight: bolder;">{{.login_user_count}}</div></div>
                     <!-- <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">USER</div><div id="user" style="font-size: 120%; font-weight: bolder;">{{.current_user}}</div></div> -->
@@ -171,8 +171,8 @@
                     <div class="col-md-6 col-sm-6">
                         <div id="container-cpu" style="width: 100%; height: 200px;"></div>
                         <div style="height: 200px;">
-                            <div class="row" style="margin: 0; background-color:#E0E0E0;">
-                                <div class="text-center" style="padding: 2px 0 2px 0; background-color: #CDFD9F;"><strong><small>CPU</small></strong></div>
+                            <div class="row" style="margin: 0; background-color:#E5E6E4;">
+                                <div class="text-center" style="padding: 2px 0 2px 0; background-color: #ADF6B1;"><strong><small>CPU</small></strong></div>
                                 <div class="col-md-3 col-sm-3 col-xs-3" style="padding: 0;">
                                     <div class="text-center" style="padding: 10px 0 10px 0; background-color:#FFFECD;"><span id="cpu-freq" style="font-weight: bolder;">{{.cpu_freq}}</span><br /><small class="label">MHz</small></div>
                                 </div>
@@ -183,25 +183,25 @@
                                     <div class="text-center" style="padding: 10px 0 10px 0; background-color:#FDCCCB;"><span id="cpu-temp" style="font-weight: bolder;">{{.cpu_temperature}}</span><br /><small class="label">C°</small></div>
                                 </div>
                                 <div class="col-md-3 col-sm-3 col-xs-3" style="padding: 0;">
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#9BCEFD;"><span id="cpu-stat-idl">{{.cpu_status_idle}}</span>%<br /><small class="label">IDLE</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#A3D5FF;"><span id="cpu-stat-idl">{{.cpu_status_idle}}</span>%<br /><small class="label">IDLE</small></div>
                                 </div>
                                 <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0;">
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#9BCEFD;"><span id="cpu-stat-use">{{.cpu_status_user}}</span>%<br /><small class="label">USER</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#A3D5FF;"><span id="cpu-stat-use">{{.cpu_status_user}}</span>%<br /><small class="label">USER</small></div>
                                 </div>
                                 <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0;">
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#9BCEFD;"><span id="cpu-stat-sys">{{.cpu_status_system}}</span>%<br /><small class="label">SYS</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#A3D5FF;"><span id="cpu-stat-sys">{{.cpu_status_system}}</span>%<br /><small class="label">SYS</small></div>
                                 </div>
                                 <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0;">
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#9BCEFD;"><span id="cpu-stat-nic">{{.cpu_status_nice}}</span>%<br /><small class="label">NICE</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#A3D5FF;"><span id="cpu-stat-nic">{{.cpu_status_nice}}</span>%<br /><small class="label">NICE</small></div>
                                 </div>
                                 <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0;">
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#9BCEFD;"><span id="cpu-stat-iow">{{.cpu_status_iowait}}</span>%<br /><small class="label">IOW</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#A3D5FF;"><span id="cpu-stat-iow">{{.cpu_status_iowait}}</span>%<br /><small class="label">IOW</small></div>
                                 </div>
                                 <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0;">
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#9BCEFD;"><span id="cpu-stat-irq">{{.cpu_status_irq}}</span>%<br /><small class="label">IRQ</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#A3D5FF;"><span id="cpu-stat-irq">{{.cpu_status_irq}}</span>%<br /><small class="label">IRQ</small></div>
                                 </div>
                                 <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0;">
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#9BCEFD;"><span id="cpu-stat-sirq">{{.cpu_status_softirq}}</span>%<br /><small class="label">SIRQ</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color:#A3D5FF;"><span id="cpu-stat-sirq">{{.cpu_status_softirq}}</span>%<br /><small class="label">SIRQ</small></div>
                                 </div>
                                 <div class="col-md-12" style="min-height: 52px;">
                                     <div class="text-center" style="padding: 10px 0 10px 0; margin: auto 0;"><span id="cpu-model" class="label">{{.cpu_model_name}} {{.cpu_revision}}</span>&nbsp;</div>
@@ -212,11 +212,11 @@
                     <div class="col-md-6 col-sm-6">
                         <div id="container-mem" style="width: 100%; height: 200px;"></div>
                         <div style="height: 200px;">
-                            <div class="row" style="margin: 0; background-color:#E0E0E0;">
-                                <div class="text-center" style="padding: 2px 0 2px 0; background-color: #CDFD9F;"><strong><small>MEMORY</small></strong></div>
+                            <div class="row" style="margin: 0; background-color:#E5E6E4;">
+                                <div class="text-center" style="padding: 2px 0 2px 0; background-color: #ADF6B1;"><strong><small>MEMORY</small></strong></div>
                                 <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0;">
                                     <div class="text-center" style="padding: 10px 0 10px 0;"><span id="mem-percent">{{.memory_percent}}</span>%<br /><small class="label">USED</small></div>
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #CDFD9F;"><span id="mem-free">{{.memory_free}}</span>MB<br /><small class="label">FREE</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #ADF6B1;"><span id="mem-free">{{.memory_free}}</span>MB<br /><small class="label">FREE</small></div>
                                 </div>
                                 <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0;">
                                     <div class="text-center" style="padding: 10px 0 10px 0; background-color: #CEFFFF;"><span id="mem-cached">{{.memory_cached}}</span>MB<br /><small class="label">CACHED</small></div>
@@ -243,7 +243,7 @@
                     <div class="col-md-3 col-sm-3 col-xs-6">
                         <div id="container-cache" style="width: 100%; height: 100px;"></div>
                         <div style="height: 90px;">
-                            <div class="row" style="margin: 0; background-color:#E0E0E0;">
+                            <div class="row" style="margin: 0; background-color:#E5E6E4;">
                                 <div class="text-center" style="padding: 2px 0 2px 0; background-color: #CEFFFF;"><strong><small>CACHE</small></strong></div>
                                 <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0;">
                                     <div class="text-center" style="padding: 10px 0 10px 0;"><span id="mem-cache-percent">{{.memory_cached_percent}}</span>%<br /><small class="label">USED</small></div>
@@ -257,12 +257,12 @@
                     <div class="col-md-3 col-sm-3 col-xs-6">
                         <div id="container-mem-real" style="width: 100%; height: 100px;"></div>
                         <div style="height: 90px;">
-                            <div class="row" style="margin: 0; background-color:#E0E0E0;">
-                                <div class="text-center" style="padding: 2px 0 2px 0; background-color: #CDFD9F;"><strong><small>REAL MEMORY</small></strong></div>
+                            <div class="row" style="margin: 0; background-color:#E5E6E4;">
+                                <div class="text-center" style="padding: 2px 0 2px 0; background-color: #ADF6B1;"><strong><small>REAL MEMORY</small></strong></div>
                                 <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0;">
                                     <div class="text-center" style="padding: 10px 0 10px 0;"><span id="mem-real-percent">{{.memory_real_percent}}</span>%<br /><small class="label">USED</small></div>
                                 </div>
-                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0; background-color:#CDFD9F;">
+                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0; background-color:#ADF6B1;">
                                     <div class="text-center" style="padding: 10px 0 10px 0;"><span id="mem-real-free">{{.memory_available}}</span>MB<br /><small class="label">FREE</small></div>
                                 </div>
                             </div>
@@ -271,7 +271,7 @@
                     <div class="col-md-3 col-sm-3 col-xs-6">
                         <div id="container-swap" style="width: 100%; height: 100px;"></div>
                         <div style="height: 90px;">
-                            <div class="row" style="margin: 0; background-color:#E0E0E0;">
+                            <div class="row" style="margin: 0; background-color:#E5E6E4;">
                                 <div class="text-center" style="padding: 2px 0 2px 0; background-color: #CCCDFC;"><strong><small>SWAP</small></strong></div>
                                 <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0;">
                                     <div class="text-center" style="padding: 10px 0 10px 0;"><span id="mem-swap-percent">{{.swap_used_percent}}</span>%<br /><small class="label">USED</small></div>
@@ -285,12 +285,12 @@
                     <div class="col-md-3 col-sm-3 col-xs-6">
                         <div id="container-disk" style="width: 100%; height: 100px;"></div>
                         <div style="height: 90px;">
-                            <div class="row" style="margin: 0; background-color:#E0E0E0;">
-                                <div class="text-center" style="padding: 2px 0 2px 0; background-color: #9BCEFD;"><strong><small>DISK ( {{.disk_name}} )</small></strong></div>
+                            <div class="row" style="margin: 0; background-color:#E5E6E4;">
+                                <div class="text-center" style="padding: 2px 0 2px 0; background-color: #A3D5FF;"><strong><small>DISK ( {{.disk_name}} )</small></strong></div>
                                 <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0;">
                                     <div class="text-center" style="padding: 10px 0 10px 0;"><span id="disk-percent">{{.disk_used_percent}}</span>%<br /><small class="label">USED</small></div>
                                 </div>
-                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0; background-color:#9BCEFD;">
+                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding: 0; background-color:#A3D5FF;">
                                     <div class="text-center" style="padding: 10px 0 10px 0;"><span id="disk-free">{{.disk_free}}</span>GB<br /><small class="label">FREE</small></div>
                                 </div>
                             </div>
@@ -308,8 +308,8 @@
                             <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0;">
                                 <div style="height: 80px; margin-top: 10px;">
                                     <div class="text-center" style="padding: 2px 0 2px 0; background-color: #CCCCCC;"><strong><span id="net-interface-1-name">lo</span></strong></div>
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #9BCEFD;"><span id="net-interface-1-total-in">{{.net_status_lo_in_data}}</span>MB<br /><small class="label">IN</small></div>
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #CDFD9F;"><span id="net-interface-1-total-out">{{.net_status_lo_out_data}}</span>MB<br /><small class="label">OUT</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #A3D5FF;"><span id="net-interface-1-total-in">{{.net_status_lo_in_data}}</span>MB<br /><small class="label">IN</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #ADF6B1;"><span id="net-interface-1-total-out">{{.net_status_lo_out_data}}</span>MB<br /><small class="label">OUT</small></div>
                                 </div>
                             </div>
                         </div>
@@ -320,8 +320,8 @@
                             <div class="col-md-2 col-sm-2 col-xs-2" style="padding: 0;">
                                 <div style="height: 80px; margin-top: 10px;">
                                     <div class="text-center" style="padding: 2px 0 2px 0; background-color: #CCCCCC;"><strong><span id="net-interface-2-name">{{.net_dev_name}}</span></strong></div>
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #9BCEFD;"><span id="net-interface-2-total-in">{{.net_status_in_data}}</span>MB<br /><small class="label">IN</small></div>
-                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #CDFD9F;"><span id="net-interface-2-total-out">{{.net_status_out_data}}</span>MB<br /><small class="label">OUT</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #A3D5FF;"><span id="net-interface-2-total-in">{{.net_status_in_data}}</span>MB<br /><small class="label">IN</small></div>
+                                    <div class="text-center" style="padding: 10px 0 10px 0; background-color: #ADF6B1;"><span id="net-interface-2-total-out">{{.net_status_out_data}}</span>MB<br /><small class="label">OUT</small></div>
                                 </div>
                             </div>
                         </div>
@@ -360,6 +360,6 @@
 @Author: github.com/plutobell
 @Creation: 2020-8-1
 @Last modify: 2020-8-6
-@Version: 1.0.4 -->
+@Version: 1.0.5 -->
 </body>
 </html>
