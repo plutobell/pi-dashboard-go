@@ -70,6 +70,11 @@ Options:
 
 **2020-8-6**
 
+* v1.0.5 : 
+  * Interface color adjustment
+  * Data update detection and prompt
+  * Optimize code for server
+  * Detail adjustment
 * v1.0.4 : 
   * Adjust Cached calculation method
   * Added theme-color for mobile browser
