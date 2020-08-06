@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-6
-// @Version: 1.0.4
+// @Version: 1.0.5
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function () {
@@ -58,9 +58,9 @@ $(document).ready(function() {
         // the value axis
         yAxis: {
             stops: [
-                [0.1, '#55BF3B'],
-                [0.5, '#DDDF0D'],
-                [0.9, '#DF5353']
+                [0.1, '#02c39a'],
+                [0.5, '#dddf00'],
+                [0.9, '#db3a34']
             ],
             lineWidth: 0,
             minorTickInterval: null,
@@ -255,7 +255,7 @@ $(document).ready(function() {
             {
                 name: 'IN',
                 data: [0],
-                color: '#093AC9',
+                color: '#0077b6',
                 marker: {
                     enabled: false
                 }
@@ -263,7 +263,7 @@ $(document).ready(function() {
             {
                 name: 'OUT',
                 data: [0],
-                color: '#3CCB3E',
+                color: '#16db93',
                 marker: {
                     enabled: false
                 }
@@ -298,7 +298,7 @@ $(document).ready(function() {
             {
                 name: 'IN',
                 data: [0],
-                color: '#093AC9',
+                color: '#0077b6',
                 marker: {
                     enabled: false
                 }
@@ -306,7 +306,7 @@ $(document).ready(function() {
             {
                 name: 'OUT',
                 data: [0],
-                color: '#3CCB3E',
+                color: '#16db93',
                 marker: {
                     enabled: false
                 }
@@ -318,6 +318,9 @@ $(document).ready(function() {
 
     setInterval(function() {
         $.getJSON('?ajax=true', function(data){
+            $("#loading").hide()
+            removeUnScroll()
+
             $("#login-users").text(data.login_user_count);
             $("#hostname").text(data.hostname);
             $("#uname").text(data.uname);
@@ -362,7 +365,10 @@ $(document).ready(function() {
                 window.dashboard_old = window.dashboard;
             }
             window.dashboard = data;
-        });
+        }).fail(function() {
+                $("#loading").show()
+                unScroll()
+            });
 
         if(window.dashboard != null){
             var point;
@@ -428,3 +434,14 @@ $(document).ready(function() {
     }, 1000);
 }
 )
+
+function unScroll() {
+    var top = $(document).scrollTop();
+    $(document).on('scroll.unable',function (e) {
+        $(document).scrollTop(top);
+    })
+}
+
+function removeUnScroll() {
+    $(document).unbind("scroll.unable");
+}
