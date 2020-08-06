@@ -11,10 +11,12 @@ window.event.returnValue = false;
     return false;
 }
 
+unScroll()
 
 $(document).ready(function() {
 
     $("#loading").hide()
+    removeUnScroll()
 
     Highcharts.setOptions({
         global: {
