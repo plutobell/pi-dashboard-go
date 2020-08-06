@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-6
-// @Version: 1.0.4
+// @Version: 1.0.5
 
 package main
 
@@ -36,28 +36,11 @@ func Server() {
 	//Echo 实例
 	e := echo.New()
 	port := ":" + Port
-	userName := USERNAME
-	passWord := PASSWORD
-	auth := strings.Split(Auth, ":")
-	if len(auth) == 2 {
-		userName = auth[0]
-		passWord = auth[1]
-	} else {
-		fmt.Println("Auth格式错误")
-		return
-	}
 
 	//注册中间件
 	e.Use(middleware.Recover())
 	//e.Use(middleware.Logger())
-	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		// Be careful to use constant time comparison to prevent timing attacks
-		if subtle.ConstantTimeCompare([]byte(userName), []byte(username)) == 1 &&
-			subtle.ConstantTimeCompare([]byte(passWord), []byte(password)) == 1 {
-			return true, nil
-		}
-		return false, nil
-	}))
+	e.Use(middleware.BasicAuth(authFunc))
 
 	//静态文件
 	// e.Static("/assets", "assets")
@@ -103,4 +86,24 @@ func View(c echo.Context) error {
 		return c.JSON(http.StatusOK, device)
 	}
 	return c.Render(http.StatusOK, "view.tmpl", device)
+}
+
+func authFunc(username, password string, c echo.Context) (bool, error) {
+	// Be careful to use constant time comparison to prevent timing attacks
+	userName := USERNAME
+	passWord := PASSWORD
+	auth := strings.Split(Auth, ":")
+	if len(auth) == 2 {
+		userName = auth[0]
+		passWord = auth[1]
+	} else {
+		fmt.Println("Auth格式错误")
+		return false, nil
+	}
+
+	if subtle.ConstantTimeCompare([]byte(userName), []byte(username)) == 1 &&
+		subtle.ConstantTimeCompare([]byte(passWord), []byte(password)) == 1 {
+		return true, nil
+	}
+	return false, nil
 }
