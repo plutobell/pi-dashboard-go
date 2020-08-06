@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-6
-// @Version: 1.0.5
+// @Version: 1.0.6
 
 package main
 

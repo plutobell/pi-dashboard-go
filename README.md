@@ -70,6 +70,10 @@ Options:
 
 **2020-8-6**
 
+* v1.0.6 : 
+  * Fix the bug that the network card data display error
+  * Fixed navigation bar at the top
+  * Interface detail adjustment
 * v1.0.5 : 
   * Interface color adjustment
   * Data update detection and prompt
