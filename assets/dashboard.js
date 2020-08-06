@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
 // @Last modify: 2020-8-6
-// @Version: 1.0.5
+// @Version: 1.0.6
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function () {
@@ -15,8 +15,8 @@ unScroll()
 
 $(document).ready(function() {
 
-    $("#loading").hide()
-    removeUnScroll()
+    $("#loading").hide();
+    removeUnScroll();
 
     Highcharts.setOptions({
         global: {
@@ -257,7 +257,7 @@ $(document).ready(function() {
             {
                 name: 'IN',
                 data: [0],
-                color: '#0077b6',
+                color: '#3a86ff',
                 marker: {
                     enabled: false
                 }
@@ -300,7 +300,7 @@ $(document).ready(function() {
             {
                 name: 'IN',
                 data: [0],
-                color: '#0077b6',
+                color: '#3a86ff',
                 marker: {
                     enabled: false
                 }
@@ -320,8 +320,8 @@ $(document).ready(function() {
 
     setInterval(function() {
         $.getJSON('?ajax=true', function(data){
-            $("#loading").hide()
-            removeUnScroll()
+            $("#loading").hide();
+            removeUnScroll();
 
             $("#login-users").text(data.login_user_count);
             $("#hostname").text(data.hostname);
@@ -367,9 +367,10 @@ $(document).ready(function() {
                 window.dashboard_old = window.dashboard;
             }
             window.dashboard = data;
+
         }).fail(function() {
-                $("#loading").show()
-                unScroll()
+                $("#loading").show();
+                unScroll();
             });
 
         if(window.dashboard != null){
@@ -401,33 +402,33 @@ $(document).ready(function() {
 
             if(window.dashboard_old != null) {
                 if(chartNetInterface1.series[0].data.length >=30){
-                    chartNetInterface1.series[0].addPoint(parseInt(window.dashboard.net_status_lo_in_data) - parseInt(window.dashboard_old.net_status_lo_out_data), true, true);
+                    chartNetInterface1.series[0].addPoint(parseInt(window.dashboard.net_status_lo_in_data) - parseInt(window.dashboard_old.net_status_lo_in_data), true, true);
                 }
                 else{
-                    chartNetInterface1.series[0].addPoint(parseInt(window.dashboard.net_status_lo_in_data) - parseInt(window.dashboard_old.net_status_lo_out_data));
+                    chartNetInterface1.series[0].addPoint(parseInt(window.dashboard.net_status_lo_in_data) - parseInt(window.dashboard_old.net_status_lo_in_data));
                 }
 
                 if(chartNetInterface1.series[1].data.length >=30){
-                    chartNetInterface1.series[1].addPoint(parseInt(window.dashboard.net_status_lo_in_data) - parseInt(window.dashboard_old.net_status_lo_out_data), true, true);
+                    chartNetInterface1.series[1].addPoint(parseInt(window.dashboard.net_status_lo_out_data) - parseInt(window.dashboard_old.net_status_lo_out_data), true, true);
                 }
                 else{
-                    chartNetInterface1.series[1].addPoint(parseInt(window.dashboard.net_status_lo_in_data) - parseInt(window.dashboard_old.net_status_lo_out_data));
+                    chartNetInterface1.series[1].addPoint(parseInt(window.dashboard.net_status_lo_out_data) - parseInt(window.dashboard_old.net_status_lo_out_data));
                 }
             }
 
             if(window.dashboard_old != null) {
                 if(chartNetInterface2.series[0].data.length >=30){
-                    chartNetInterface2.series[0].addPoint(parseInt(window.dashboard.net_status_in_data) - parseInt(window.dashboard_old.net_status_out_data), true, true);
+                    chartNetInterface2.series[0].addPoint(parseInt(window.dashboard.net_status_in_data) - parseInt(window.dashboard_old.net_status_in_data), true, true);
                 }
                 else{
-                    chartNetInterface2.series[0].addPoint(parseInt(window.dashboard.net_status_in_data) - parseInt(window.dashboard_old.net_status_out_data));
+                    chartNetInterface2.series[0].addPoint(parseInt(window.dashboard.net_status_in_data) - parseInt(window.dashboard_old.net_status_in_data));
                 }
 
                 if(chartNetInterface2.series[1].data.length >=30){
-                    chartNetInterface2.series[1].addPoint(parseInt(window.dashboard.net_status_in_data) - parseInt(window.dashboard_old.net_status_out_data), true, true);
+                    chartNetInterface2.series[1].addPoint(parseInt(window.dashboard.net_status_out_data) - parseInt(window.dashboard_old.net_status_out_data), true, true);
                 }
                 else{
-                    chartNetInterface2.series[1].addPoint(parseInt(window.dashboard.net_status_in_data) - parseInt(window.dashboard_old.net_status_out_data));
+                    chartNetInterface2.series[1].addPoint(parseInt(window.dashboard.net_status_out_data) - parseInt(window.dashboard_old.net_status_out_data));
                 }
             }
 
