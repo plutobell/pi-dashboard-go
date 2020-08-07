@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-6
-// @Version: 1.0.6
+// @Last modify: 2020-8-7
+// @Version: 1.0.7
 
 package main
 
@@ -90,7 +90,7 @@ func Device() map[string]string {
 
 	cpuTemperature, _ := strconv.Atoi(device["cpu_temperature"])
 	device["uptime"] = resolveTime(device["uptime"])
-	device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 2, 64)
+	device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 1, 64)
 	device["model"] = strings.Split(device["model"], ":")[1]
 	device["login_user_count"] = strings.Split(device["login_user_count"], "=")[1]
 	device["ip"] = strings.Split(device["ip"], "/")[0]
@@ -117,7 +117,7 @@ func Device() map[string]string {
 	device["cpu_status_steal"] = cpuStatus[7]
 	delete(device, "cpu_status")
 	cpuFree, _ := strconv.ParseFloat(device["cpu_status_idle"], 64)
-	device["cpu_used"] = strconv.FormatFloat(100-cpuFree, 'f', 2, 64)
+	device["cpu_used"] = strconv.FormatFloat(100-cpuFree, 'f', 1, 64)
 	cpuFreq, _ := strconv.ParseInt(device["cpu_freq"], 10, 64)
 	device["cpu_freq"] = strconv.FormatInt(cpuFreq/1000, 10)
 
@@ -133,10 +133,10 @@ func Device() map[string]string {
 	device["disk_name"] = strings.ToUpper(Disk)
 	diskUsed, _ := strconv.ParseFloat(device["disk_used"], 64)
 	diskFree, _ := strconv.ParseFloat(device["disk_free"], 64)
-	device["disk_total"] = strconv.FormatFloat((diskFree+diskUsed)/1024/1024, 'f', 2, 64)
-	device["disk_used_percent"] = strconv.FormatFloat(100*diskUsed/(diskFree+diskUsed), 'f', 2, 64)
-	device["disk_used"] = strconv.FormatFloat(diskUsed/1024/1024, 'f', 2, 64)
-	device["disk_free"] = strconv.FormatFloat(diskFree/1024/1024, 'f', 2, 64)
+	device["disk_total"] = strconv.FormatFloat((diskFree+diskUsed)/1024/1024, 'f', 1, 64)
+	device["disk_used_percent"] = strconv.FormatFloat(100*diskUsed/(diskFree+diskUsed), 'f', 1, 64)
+	device["disk_used"] = strconv.FormatFloat(diskUsed/1024/1024, 'f', 1, 64)
+	device["disk_free"] = strconv.FormatFloat(diskFree/1024/1024, 'f', 1, 64)
 
 	device["net_dev_name"] = Net
 	netStatus := strings.Split(device["net_status"], " ")
@@ -147,12 +147,14 @@ func Device() map[string]string {
 	delete(device, "net_status")
 	netInData, _ := strconv.ParseFloat(device["net_status_in_data"], 64)
 	netOutData, _ := strconv.ParseFloat(device["net_status_out_data"], 64)
-	device["net_status_in_data"] = strconv.FormatFloat(netInData/1024/1024, 'f', 2, 64)
-	device["net_status_out_data"] = strconv.FormatFloat(netOutData/1024/1024, 'f', 2, 64)
+	device["net_status_in_data_format"] = bytesRound(netInData, 2)
+	device["net_status_out_data_format"] = bytesRound(netOutData, 2)
+	// device["net_status_in_data"] = strconv.FormatFloat(netInData/1024/1024, 'f', 1, 64)
+	// device["net_status_out_data"] = strconv.FormatFloat(netOutData/1024/1024, 'f', 1, 64)
 	inPackage, _ := strconv.ParseFloat(device["net_status_in_package"], 64)
 	outPackage, _ := strconv.ParseFloat(device["net_status_out_package"], 64)
 	netLoadAverage := (inPackage + outPackage) / 2
-	device["net_status_load_average"] = strconv.FormatFloat(netLoadAverage, 'f', 2, 64)
+	device["net_status_load_average"] = strconv.FormatFloat(netLoadAverage, 'f', 1, 64)
 
 	netStatusLo := strings.Split(device["net_status_lo"], " ")
 	device["net_status_lo_in_data"] = netStatusLo[0]
@@ -162,43 +164,45 @@ func Device() map[string]string {
 	delete(device, "net_status_lo")
 	netLoInData, _ := strconv.ParseFloat(device["net_status_lo_in_data"], 64)
 	netLoOutData, _ := strconv.ParseFloat(device["net_status_lo_out_data"], 64)
-	device["net_status_lo_in_data"] = strconv.FormatFloat(netLoInData/1024/1024, 'f', 2, 64)
-	device["net_status_lo_out_data"] = strconv.FormatFloat(netLoOutData/1024/1024, 'f', 2, 64)
+	device["net_status_lo_in_data_format"] = bytesRound(netLoInData, 2)
+	device["net_status_lo_out_data_format"] = bytesRound(netLoOutData, 2)
+	// device["net_status_lo_in_data"] = strconv.FormatFloat(netLoInData/1024/1024, 'f', 1, 64)
+	// device["net_status_lo_out_data"] = strconv.FormatFloat(netLoOutData/1024/1024, 'f', 1, 64)
 	inLoPackage, _ := strconv.ParseFloat(device["net_status_lo_in_package"], 64)
 	outLoPackage, _ := strconv.ParseFloat(device["net_status_lo_out_package"], 64)
 	netLoLoadAverage := (inLoPackage + outLoPackage) / 2
-	device["net_status_lo_load_average"] = strconv.FormatFloat(netLoLoadAverage, 'f', 2, 64)
+	device["net_status_lo_load_average"] = strconv.FormatFloat(netLoLoadAverage, 'f', 1, 64)
 
 	memoryCached, _ := strconv.ParseFloat(device["memory_cached"], 64)
 	memoryCached = memoryCached / 1024
-	device["memory_cached"] = strconv.FormatFloat(memoryCached, 'f', 2, 64)
+	device["memory_cached"] = strconv.FormatFloat(memoryCached, 'f', 1, 64)
 
 	memoryFree, _ := strconv.ParseFloat(device["memory_free"], 64)
 	memoryFree = memoryFree / 1024
-	device["memory_free"] = strconv.FormatFloat(memoryFree, 'f', 2, 64)
+	device["memory_free"] = strconv.FormatFloat(memoryFree, 'f', 1, 64)
 
 	memoryAvailable, _ := strconv.ParseFloat(device["memory_available"], 64)
 	memoryAvailable = memoryAvailable / 1024
-	device["memory_available"] = strconv.FormatFloat(memoryAvailable, 'f', 2, 64)
+	device["memory_available"] = strconv.FormatFloat(memoryAvailable, 'f', 1, 64)
 
 	memoryBuffers, _ := strconv.ParseFloat(device["memory_buffers"], 64)
 	memoryBuffers = memoryBuffers / 1024
-	device["memory_buffers"] = strconv.FormatFloat(memoryBuffers, 'f', 2, 64)
+	device["memory_buffers"] = strconv.FormatFloat(memoryBuffers, 'f', 1, 64)
 
 	memoryTotal, _ := strconv.ParseFloat(device["memory_total"], 64)
 	memoryTotal = memoryTotal / 1024
-	device["memory_total"] = strconv.FormatFloat(memoryTotal, 'f', 2, 64)
+	device["memory_total"] = strconv.FormatFloat(memoryTotal, 'f', 1, 64)
 
-	device["memory_used"] = strconv.FormatFloat(memoryTotal-memoryFree, 'f', 2, 64)
-	device["memory_real_used"] = strconv.FormatFloat(memoryTotal-memoryAvailable, 'f', 2, 64)
-	device["memory_percent"] = strconv.FormatFloat(100*(memoryTotal-memoryFree)/memoryTotal, 'f', 2, 64)
-	device["memory_real_percent"] = strconv.FormatFloat(100*(memoryTotal-memoryAvailable)/memoryTotal, 'f', 2, 64)
-	device["memory_cached_percent"] = strconv.FormatFloat(100*(memoryCached)/memoryTotal, 'f', 2, 64)
+	device["memory_used"] = strconv.FormatFloat(memoryTotal-memoryFree, 'f', 1, 64)
+	device["memory_real_used"] = strconv.FormatFloat(memoryTotal-memoryAvailable, 'f', 1, 64)
+	device["memory_percent"] = strconv.FormatFloat(100*(memoryTotal-memoryFree)/memoryTotal, 'f', 1, 64)
+	device["memory_real_percent"] = strconv.FormatFloat(100*(memoryTotal-memoryAvailable)/memoryTotal, 'f', 1, 64)
+	device["memory_cached_percent"] = strconv.FormatFloat(100*(memoryCached)/memoryTotal, 'f', 1, 64)
 	swapFree, _ := strconv.ParseFloat(device["swap_free"], 64)
 	swapTotal, _ := strconv.ParseFloat(device["swap_total"], 64)
-	device["swap_free"] = strconv.FormatFloat(swapFree/1024, 'f', 2, 64)
-	device["swap_total"] = strconv.FormatFloat(swapTotal/1024, 'f', 2, 64)
-	device["swap_used_percent"] = strconv.FormatFloat(100*(swapTotal-swapFree)/swapTotal, 'f', 2, 64)
+	device["swap_free"] = strconv.FormatFloat(swapFree/1024, 'f', 1, 64)
+	device["swap_total"] = strconv.FormatFloat(swapTotal/1024, 'f', 1, 64)
+	device["swap_used_percent"] = strconv.FormatFloat(100*(swapTotal-swapFree)/swapTotal, 'f', 1, 64)
 	if swapFree == 0 && swapTotal == 0 {
 		device["swap_used_percent"] = "0"
 		device["swap_free"] = "0"
@@ -231,4 +235,24 @@ func resolveTime(str string) string {
 	}
 
 	return uptime + strconv.FormatInt(min, 10)
+}
+
+func bytesRound(number, round float64) string {
+	var last string
+	if number < 0 {
+		last = "0" + "B"
+	} else if number < 1024 {
+		numberStr := strconv.FormatFloat(number, 'f', 1, 64)
+		last = numberStr + "B"
+	} else if number < 1048576 {
+		number = number / 1024
+		last = strconv.FormatFloat(math.Round(number*math.Pow(10, round))/math.Pow(10, round), 'f', 1, 64) + "KB"
+	} else if number < 1048576000 {
+		number = number / 1048576
+		last = strconv.FormatFloat(math.Round(number*math.Pow(10, round))/math.Pow(10, round), 'f', 1, 64) + "MB"
+	} else {
+		number = number / 1048576000
+		last = strconv.FormatFloat(math.Round(number*math.Pow(10, round))/math.Pow(10, round), 'f', 1, 64) + "GB"
+	}
+	return last
 }
