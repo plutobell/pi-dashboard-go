@@ -25,3 +25,11 @@ func Test_resolveTime(t *testing.T) {
 		t.Error("Fail")
 	}
 }
+
+func Test_bytesRound(t *testing.T) {
+	if last := bytesRound(1073741824, 2); last == "1.0GB" {
+		t.Log("Pass")
+	} else {
+		t.Error("Fail")
+	}
+}
