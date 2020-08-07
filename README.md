@@ -68,6 +68,12 @@ Options:
 
 ## Changelog
 
+**2020-8-7**
+
+* v1.0.7 : 
+  * Optimize network card flow and curve display
+  * Interface detail adjustment
+
 **2020-8-6**
 
 * v1.0.6 : 
