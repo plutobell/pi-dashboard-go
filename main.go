@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-7
-// @Version: 1.0.7
+// @Last modify: 2020-8-9
+// @Version: 1.0.8
 
 package main
 
@@ -18,7 +18,7 @@ const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.0.7"
+	VERSION string = "1.0.8"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -60,7 +60,8 @@ func main() {
 		return
 	}
 	if version {
-		fmt.Println("pi-dashboard-go " + VERSION)
+		fmt.Println("Pi Dashboard Go  " + VERSION)
+		fmt.Println("Project address: https://github.com/plutobell/pi-dashboard-go")
 		return
 	}
 	netDevs := Popen("cat /proc/net/dev")
