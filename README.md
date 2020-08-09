@@ -21,7 +21,7 @@ Grant executable permissions
 chmod +x pi-dashboard-go
 ```
 
-**Pi Dashboard Go requires root privileges.**
+**Note：Pi Dashboard Go requires root privileges.**
 
 
 
