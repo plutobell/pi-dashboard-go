@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-7
-// @Version: 1.0.7
+// @Last modify: 2020-8-9
+// @Version: 1.0.8
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function () {
@@ -11,7 +11,7 @@ window.event.returnValue = false;
     return false;
 }
 
-unScroll()
+unScroll();
 
 $(document).ready(function() {
 
@@ -448,3 +448,46 @@ function unScroll() {
 function removeUnScroll() {
     $(document).unbind("scroll.unable");
 }
+
+
+$("#reboot").click(function(){
+    $.getJSON('?operate=reboot', function(data){
+        if (data.status == "ok") {
+            window.alert("OK")
+            $("#loading").show();
+            unScroll();
+        }
+    }).fail(function() {
+        window.alert("Fail");
+        $("#loading").show();
+        unScroll();
+        });
+});
+
+$("#shutdown").click(function(){
+    $.getJSON('?operate=shutdown', function(data){
+        if (data.status == "ok") {
+            window.alert("OK");
+            $("#loading").show();
+            unScroll();
+        }
+    }).fail(function() {
+        window.alert("Fail");
+        $("#loading").show();
+        unScroll();
+        });
+});
+
+$("#dropcaches").click(function(){
+    $.getJSON('?operate=dropcaches', function(data){
+        if (data.status == "ok") {
+            window.alert("OK");
+            // $("#loading").show();
+            // unScroll();
+        }
+    }).fail(function() {
+        window.alert("Fail");
+        // $("#loading").show();
+        // unScroll();
+        });
+});

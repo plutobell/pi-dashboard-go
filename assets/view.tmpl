@@ -119,6 +119,24 @@
             -webkit-transform: scaleY(1.0);
         }
         }
+
+        #command-btns{
+            list-style-type:none;
+            display: block;
+            margin-top: 0 auto;
+            margin-top: 10px;
+            padding: 0;
+        }
+        #command-btns li{
+            display: inline;
+            white-space:nowrap;
+            margin: auto 7px;
+            cursor: pointer;
+        }
+        #command-btns li img:hover{
+            border: 1px solid #E5E6E4;
+            border-radius: 90px;
+        }
     </style>
 </head>
 <body>
@@ -164,7 +182,17 @@
                     <!-- <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">OS</div><div id="os" style="font-size: 120%; font-weight: bolder;">{{.os}}</div></div> -->
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">SYSTEM</div><div id="system" style="font-size: 120%; font-weight: bolder;">{{.system}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div class="label">HOSTNAME</div><div id="hostname" style="font-size: 110%; font-weight: bolder;">{{.hostname}}</div></div>
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div id="uname" style="word-break:break-all; word-wrap:break-word; font-size: 12px; color: #999999; padding: 0 10px;">{{.uname}}</div></div>
+                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;">
+                        <div class="label">OPERATION</div>
+                        <div style="word-break:break-all; word-wrap:break-word; font-size: 12px; color: #999999; padding: 0 10px;">
+                            <ul id="command-btns">
+                                <li id="reboot"><img src="assets/btns/reboot.png" width="29px" height="29px" alt="Reboot Device" title="Reboot Device" /></li>
+                                <li id="shutdown"><img src="assets/btns/shutdown.png" width="30px" height="30px" alt="Shutdown Device" title="Shutdown Device" /></li>
+                                <li id="dropcaches"><img src="assets/btns/clean.png" width="30px" height="30px" alt="Drop Caches" title="Drop Caches" /></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#FAFAFA; border-radius: 3px;"><div id="uname" style="word-break:break-all; word-wrap:break-word; font-size: 12px; color: #999999; padding: 2px 10px;">{{.uname}}</div></div>
                 </div>
             </div>
             <div class="col-md-9">
@@ -360,7 +388,7 @@
 @Description: Golang implementation of pi-dashboard
 @Author: github.com/plutobell
 @Creation: 2020-8-1
-@Last modify: 2020-8-7
-@Version: 1.0.7 -->
+@Last modify: 2020-8-9
+@Version: 1.0.8 -->
 </body>
 </html>

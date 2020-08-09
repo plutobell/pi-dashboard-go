@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-7
-// @Version: 1.0.7
+// @Last modify: 2020-8-9
+// @Version: 1.0.8
 
 package main
 
@@ -81,10 +81,25 @@ func View(c echo.Context) error {
 	device["version"] = VERSION
 	device["site_title"] = Title
 
-	ajax := c.QueryParam("ajax")
-	if ajax == "true" {
+	if ajax := c.QueryParam("ajax"); ajax == "true" {
 		return c.JSON(http.StatusOK, device)
 	}
+
+	status := map[string]string{
+		"status": "ok",
+	}
+	switch operate := c.QueryParam("operate"); {
+	case operate == "reboot":
+		go Popen("reboot")
+		return c.JSON(http.StatusOK, status)
+	case operate == "shutdown":
+		go Popen("shutdown -h now")
+		return c.JSON(http.StatusOK, status)
+	case operate == "dropcaches":
+		go Popen("echo 3 > /proc/sys/vm/drop_caches")
+		return c.JSON(http.StatusOK, status)
+	}
+
 	return c.Render(http.StatusOK, "view.tmpl", device)
 }
 
