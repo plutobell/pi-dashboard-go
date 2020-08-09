@@ -21,6 +21,8 @@ Grant executable permissions
 chmod +x pi-dashboard-go
 ```
 
+**Pi Dashboard Go requires root privileges.**
+
 
 
 ## Use
@@ -67,6 +69,12 @@ Options:
 
 
 ## Changelog
+
+**2020-8-9**
+
+* v1.0.8 : 
+  * Optimize swap display details
+  * Add shortcut buttons such as shutdown and reboot
 
 **2020-8-7**
 
