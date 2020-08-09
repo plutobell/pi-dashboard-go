@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-7
-// @Version: 1.0.7
+// @Last modify: 2020-8-9
+// @Version: 1.0.8
 
 package main
 
@@ -204,15 +204,14 @@ func Device() map[string]string {
 	device["swap_total"] = strconv.FormatFloat(swapTotal/1024, 'f', 1, 64)
 	device["swap_used_percent"] = strconv.FormatFloat(100*(swapTotal-swapFree)/swapTotal, 'f', 1, 64)
 	if swapFree == 0 && swapTotal == 0 {
-		device["swap_used_percent"] = "0"
-		device["swap_free"] = "0"
-		device["swap_total"] = "0"
+		device["swap_used_percent"] = "0.0"
+		device["swap_free"] = "0.0"
+		device["swap_total"] = "0.0"
 	}
 
 	return device
 }
 
-//格式化时间
 func resolveTime(str string) string {
 	var uptime string
 	strF, _ := strconv.ParseFloat(str, 10)
