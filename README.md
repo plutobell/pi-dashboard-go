@@ -5,6 +5,8 @@
 
 
 
+![](./screenshot.png)
+
 ## Install
 
 Thanks to the characteristics of the Golang language, the deployment of **Pi Dashboard Go** is very simple: **single binary executable file**.
