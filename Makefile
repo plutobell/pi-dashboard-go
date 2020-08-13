@@ -2,54 +2,68 @@
 # @Description: Golang implementation of pi-dashboard
 # @Author: github.com/plutobell
 # @Creation: 2020-8-10
-# @Last modify: 2020-8-10
+# @Last modify: 2020-8-13
 # @Version: 1.0.8
 
 PROGRAM = pi-dashboard-go
 OUTPUT = build
 GOOS = linux
+OS_NAME = $(shell uname -o)
 
-build: clean rice-box.go main.go server.go device.go  device_test.go go.mod go.sum
-	@echo "Building"
+build: clean vet rice-box.go main.go server.go device.go  device_test.go go.mod go.sum
+	@echo "-> Building"
 
-	@echo "1 -> Building the "${PROGRAM}_${GOOS}_arm
+	@echo "-> 1 Building the "${PROGRAM}_${GOOS}_arm
 	@GOOS=${GOOS} GOARCH=arm GOARM=6 go build -ldflags "-s -w" -o ./${OUTPUT}/${PROGRAM}_${GOOS}_arm
 
-	@echo "2 -> Building the "${PROGRAM}_${GOOS}_armv5
+	@echo "-> 2 Building the "${PROGRAM}_${GOOS}_armv5
 	@GOOS=${GOOS} GOARCH=arm GOARM=5 go build -ldflags "-s -w" -o ./${OUTPUT}/${PROGRAM}_${GOOS}_armv5
 
-	@echo "3 -> Building the "${PROGRAM}_${GOOS}_armv6
+	@echo "-> 3 Building the "${PROGRAM}_${GOOS}_armv6
 	@GOOS=${GOOS} GOARCH=arm GOARM=6 go build -ldflags "-s -w" -o ./${OUTPUT}/${PROGRAM}_${GOOS}_armv6
 
-	@echo "4 -> Building the "${PROGRAM}_${GOOS}_armv7
+	@echo "-> 4 Building the "${PROGRAM}_${GOOS}_armv7
 	@GOOS=${GOOS} GOARCH=arm GOARM=7 go build -ldflags "-s -w" -o ./${OUTPUT}/${PROGRAM}_${GOOS}_armv7
 
-	@echo "5 -> Building the "${PROGRAM}_${GOOS}_arm64
+	@echo "-> 5 Building the "${PROGRAM}_${GOOS}_arm64
 	@GOOS=${GOOS} GOARCH=arm64 GOARM=7 go build -ldflags "-s -w" -o ./${OUTPUT}/${PROGRAM}_${GOOS}_arm64
 
-	@echo "Complete"
+	@echo "-> Complete"
 
-run:
-	@echo "Running"
+run: clean vet
+	@echo "-> Running"
 	@go run ./
-	@echo "Complete"
+	@echo "-> Complete"
+
+vet:
+	@echo "-> Checking"
+	@go vet
+	@echo "-> Complete"
 
 test:
-	@echo "Testing"
+	@echo "-> Testing"
 	@go test -v
 	@go test -test.bench=".*"
-	@echo "Complete"
+	@echo "-> Complete"
 
 clean:
-	@echo "Cleaning"
+	@echo "-> Cleaning"
+ifeq (rice-box.go, $(wildcard $(rice-box.go)))
+	@rm rice-box.go
+endif
 	@rm -rf ./build
-	@echo "Complete"
+	@echo "-> Complete"
 
 rice-box.go:
-	@echo "Generate rice-box.go"
+	@echo "-> Generate rice-box.go"
+ifeq ($(OS_NAME), GNU/Linux)
 	@apt install golang-rice -y > /dev/null 2> /dev/null
+else
+	@go get github.com/GeertJohan/go.rice > /dev/null 2> /dev/null
+	@go get github.com/GeertJohan/go.rice/rice > /dev/null 2> /dev/null
+endif
 	@rice embed-go
-	@echo "Complete"
+	@echo "-> Complete"
 
 help:
-	@echo "Commands: build | run | test | clean"
+	@echo "-> Commands: build | run | test | vet | clean | help"
