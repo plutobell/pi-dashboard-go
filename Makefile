@@ -2,8 +2,8 @@
 # @Description: Golang implementation of pi-dashboard
 # @Author: github.com/plutobell
 # @Creation: 2020-8-10
-# @Last modify: 2020-8-13
-# @Version: 1.0.8
+# @Last modify: 2020-8-14
+# @Version: 1.0.9
 
 PROGRAM = pi-dashboard-go
 OUTPUT = build
@@ -27,6 +27,12 @@ build: clean vet rice-box.go main.go server.go device.go  device_test.go go.mod 
 
 	@echo "-> 5 Building the "${PROGRAM}_${GOOS}_arm64
 	@GOOS=${GOOS} GOARCH=arm64 GOARM=7 go build -ldflags "-s -w" -o ./${OUTPUT}/${PROGRAM}_${GOOS}_arm64
+
+	@echo "-> 6 Building the "${PROGRAM}_${GOOS}_386
+	@GOOS=${GOOS} GOARCH=386 go build -ldflags "-s -w" -o ./${OUTPUT}/${PROGRAM}_${GOOS}_386
+
+	@echo "-> 7 Building the "${PROGRAM}_${GOOS}_amd64
+	@GOOS=${GOOS} GOARCH=amd64 go build -ldflags "-s -w" -o ./${OUTPUT}/${PROGRAM}_${GOOS}_amd64
 
 	@echo "-> Complete"
 
