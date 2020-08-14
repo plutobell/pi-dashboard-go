@@ -1,7 +1,7 @@
 # Pi Dashboard Go
 **Pi Dashboard Go** is a Golang implementation of pi-dashboard
 
-* [中文文档](https://ojoll.com/archives/86/)
+* **[中文文档](https://ojoll.com/archives/86/)**
 
 
 
@@ -61,15 +61,15 @@ Options:
 
 ## Thanks
 
-* [Pi Dashboard](https://github.com/spoonysonny/pi-dashboard)
+* **[Pi Dashboard](https://github.com/spoonysonny/pi-dashboard)**
 
-* [echo](https://github.com/labstack/echo)
+* **[echo](https://github.com/labstack/echo)**
 
-* [go.rice](https://github.com/GeertJohan/go.rice)
-* [Golang](https://golang.org/)
+* **[go.rice](https://github.com/GeertJohan/go.rice)**
+* **[Golang](https://golang.org/)**
 
 
 
 ## Changelog
 
-* [Changelog](./CHANGELOG.md)
+* **[Changelog](./CHANGELOG.md)**
