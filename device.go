@@ -26,25 +26,25 @@ func Popen(command string) (string, error) {
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		//fmt.Printf("Error:can not obtain stdout pipe for command:%s\n", err)
-		return "False", errors.New("Error:can not obtain stdout pipe for command")
+		return "", errors.New("Error:can not obtain stdout pipe for command")
 	}
 
 	//执行命令
 	if err := cmd.Start(); err != nil {
 		//fmt.Println("Error:The command is err,", err)
-		return "False", errors.New("Error:The command is err")
+		return "", errors.New("Error:The command is err")
 	}
 
 	//读取所有输出
 	bytes, err := ioutil.ReadAll(stdout)
 	if err != nil {
 		//fmt.Println("ReadAll Stdout:", err.Error())
-		return "False", errors.New("ReadAll Stdout:" + err.Error())
+		return "", errors.New("ReadAll Stdout:" + err.Error())
 	}
 
 	if err := cmd.Wait(); err != nil {
 		//fmt.Println("wait:", err.Error())
-		return "False", errors.New("wait:" + err.Error())
+		return "", errors.New("wait:" + err.Error())
 	}
 
 	return string(bytes), nil
