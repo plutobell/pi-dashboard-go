@@ -2,14 +2,15 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-9
-// @Version: 1.0.8
+// @Last modify: 2020-8-14
+// @Version: 1.0.9
 
 package main
 
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -18,7 +19,7 @@ const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.0.8"
+	VERSION string = "1.0.9"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -64,12 +65,18 @@ func main() {
 		fmt.Println("Project address: https://github.com/plutobell/pi-dashboard-go")
 		return
 	}
-	netDevs := Popen("cat /proc/net/dev")
+	netDevs, err := Popen("cat /proc/net/dev")
+	if err != nil {
+		log.Fatal(err)
+	}
 	if !strings.Contains(netDevs, Net+":") {
 		fmt.Println("Network card does not exist")
 		return
 	}
-	diskLists := Popen("blkid")
+	diskLists, err := Popen("blkid")
+	if err != nil {
+		log.Fatal(err)
+	}
 	if Disk != "/" {
 		if !strings.Contains(diskLists, Disk+":") {
 			fmt.Println("Disk does not exist")
@@ -80,15 +87,14 @@ func main() {
 	if len(authSlice) != 2 {
 		fmt.Println("Auth format error")
 		return
-	} else {
-		if len([]rune(authSlice[0])) > 15 || len([]rune(authSlice[0])) == 0 {
-			fmt.Println("Username is too long")
-			return
-		}
-		if len([]rune(authSlice[1])) > 15 || len([]rune(authSlice[1])) == 0 {
-			fmt.Println("Password is too long")
-			return
-		}
+	}
+	if len([]rune(authSlice[0])) > 15 || len([]rune(authSlice[0])) == 0 {
+		fmt.Println("Username is too long")
+		return
+	}
+	if len([]rune(authSlice[1])) > 15 || len([]rune(authSlice[1])) == 0 {
+		fmt.Println("Password is too long")
+		return
 	}
 	if len([]rune(Title)) > 25 {
 		fmt.Println("Title is too long")

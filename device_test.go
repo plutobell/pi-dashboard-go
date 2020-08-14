@@ -5,7 +5,7 @@ import (
 )
 
 func Test_Popen(t *testing.T) {
-	if res := Popen("uptime"); res != "False" {
+	if res, err := Popen("uptime"); res != "False" && err == nil {
 		t.Log("Pass")
 	} else {
 		t.Error("Fail")
