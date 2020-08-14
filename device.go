@@ -2,51 +2,52 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-8-1
-// @Last modify: 2020-8-9
-// @Version: 1.0.8
+// @Last modify: 2020-8-14
+// @Version: 1.0.9
 
 package main
 
 import (
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"math"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
 )
 
 //Popen 函数用于执行系统命令
-func Popen(command string) string {
+func Popen(command string) (string, error) {
 	cmd := exec.Command("/bin/bash", "-c", command)
 
 	//创建获取命令输出管道
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		fmt.Printf("Error:can not obtain stdout pipe for command:%s\n", err)
-		return "False"
+		//fmt.Printf("Error:can not obtain stdout pipe for command:%s\n", err)
+		return "False", errors.New("Error:can not obtain stdout pipe for command")
 	}
 
 	//执行命令
 	if err := cmd.Start(); err != nil {
-		fmt.Println("Error:The command is err,", err)
-		return "False"
+		//fmt.Println("Error:The command is err,", err)
+		return "False", errors.New("Error:The command is err")
 	}
 
 	//读取所有输出
 	bytes, err := ioutil.ReadAll(stdout)
 	if err != nil {
-		fmt.Println("ReadAll Stdout:", err.Error())
-		return "False"
+		//fmt.Println("ReadAll Stdout:", err.Error())
+		return "False", errors.New("ReadAll Stdout:" + err.Error())
 	}
 
 	if err := cmd.Wait(); err != nil {
-		fmt.Println("wait:", err.Error())
-		return "False"
+		//fmt.Println("wait:", err.Error())
+		return "False", errors.New("wait:" + err.Error())
 	}
 
-	return string(bytes)
+	return string(bytes), nil
 }
 
 //Device 函数获取设备信息
@@ -61,7 +62,7 @@ func Device() map[string]string {
 		"current_user":     "whoami",
 		"hostname":         "hostname",
 		"os":               "uname -o",
-		"system":           "lsb_release -a | grep Description:",
+		"system":           "cat /etc/os-release | grep PRETTY_NAME=",
 		"arch":             "arch",
 		"uname":            "uname -a",
 		"cpu_revision":     "cat /proc/cpuinfo | grep Revision | awk '{ print $3}'",
@@ -82,21 +83,42 @@ func Device() map[string]string {
 		"net_status_lo":    "cat /proc/net/dev | grep lo: | awk '{ print $2,$3,$10,$11}'",
 		"net_status":       "cat /proc/net/dev | grep " + Net + ": | awk '{ print $2,$3,$10,$11}'",
 	}
+
+	arch := runtime.GOARCH
+	if strings.Contains(arch, "arm") {
+		arch = "arm"
+	}
+
+	if arch != "arm" {
+		command["cpu_cores"] = "cat /proc/cpuinfo |grep 'cores' | uniq | awk '{ print $4 }'"
+		command["cpu_model_name"] = "lscpu | grep 'Model name'"
+		command["cpu_freq"] = "cat /proc/cpuinfo |grep MHz|uniq | awk '{ print $4 }'"
+	}
+
 	for k, v := range command {
-		res := Popen(v)
+		res, err := Popen(v)
+		if err != nil {
+			// log.Fatal(err)
+			device[k] = "NaN"
+		}
 		res = strings.Replace(res, "\n", "", -1)
 		device[k] = res
 	}
 
 	cpuTemperature, _ := strconv.Atoi(device["cpu_temperature"])
 	device["uptime"] = resolveTime(device["uptime"])
-	device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 1, 64)
-	device["model"] = strings.Split(device["model"], ":")[1]
+	device["system"] = strings.Replace(strings.Replace(strings.Split(device["system"], "\"")[1], " GNU/Linux ", " ", -1), "\"", "", -1)
+	if arch == "arm" {
+		device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 1, 64)
+		device["model"] = strings.Split(device["model"], ":")[1]
+	} else {
+		device["cpu_temperature"] = "NaN"
+		device["model"] = "Linux Computer"
+		device["cpu_model_name"] = strings.Trim(strings.Split(device["cpu_model_name"], ":")[1], " ")
+	}
 	device["login_user_count"] = strings.Split(device["login_user_count"], "=")[1]
 	device["ip"] = strings.Split(device["ip"], "/")[0]
 	device["now_time"] = time.Now().Format("2006-01-02 15:04:05")
-	device["system"] = strings.Replace(strings.Split(device["system"], ":")[1], " GNU/Linux ", " ", -1)
-	device["cpu_revision"] = "Revision-" + device["cpu_revision"]
 
 	loadAverage := strings.Split(device["load_average"], " ")
 	device["load_average_1m"] = loadAverage[0]
@@ -118,8 +140,12 @@ func Device() map[string]string {
 	delete(device, "cpu_status")
 	cpuFree, _ := strconv.ParseFloat(device["cpu_status_idle"], 64)
 	device["cpu_used"] = strconv.FormatFloat(100-cpuFree, 'f', 1, 64)
-	cpuFreq, _ := strconv.ParseInt(device["cpu_freq"], 10, 64)
-	device["cpu_freq"] = strconv.FormatInt(cpuFreq/1000, 10)
+	if arch == "arm" {
+		cpuFreq, _ := strconv.ParseInt(device["cpu_freq"], 10, 64)
+		device["cpu_freq"] = strconv.FormatInt(cpuFreq/1000, 10)
+	} else {
+		device["cpu_freq"] = strings.Split(device["cpu_freq"], ".")[0]
+	}
 
 	nowTime := strings.Split(device["now_time"], " ")
 	device["now_time_ymd"] = nowTime[0]
@@ -202,6 +228,7 @@ func Device() map[string]string {
 	swapTotal, _ := strconv.ParseFloat(device["swap_total"], 64)
 	device["swap_free"] = strconv.FormatFloat(swapFree/1024, 'f', 1, 64)
 	device["swap_total"] = strconv.FormatFloat(swapTotal/1024, 'f', 1, 64)
+	device["swap_used"] = strconv.FormatFloat((swapTotal-swapFree)/1024, 'f', 1, 64)
 	device["swap_used_percent"] = strconv.FormatFloat(100*(swapTotal-swapFree)/swapTotal, 'f', 1, 64)
 	if swapFree == 0 && swapTotal == 0 {
 		device["swap_used_percent"] = "0.0"
