@@ -54,9 +54,7 @@ test:
 
 clean:
 	@echo "-> Cleaning"
-ifeq (rice-box.go, $(wildcard $(rice-box.go)))
-	@rm rice-box.go
-endif
+	@rm -rf rice-box.go
 	@rm -rf ./build
 	@echo "-> Complete"
 
