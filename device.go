@@ -1,8 +1,8 @@
 // @Program : Pi Dashboard Go (https://github.com/plutobell/pi-dashboard-go)
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
-// @Creation: 2020-8-1
-// @Last modify: 2020-8-14
+// @Creation: 2020-08-01
+// @Last modify: 2021-03-15
 // @Version: 1.0.9
 
 package main
@@ -60,7 +60,7 @@ func Device() map[string]string {
 		"login_user_count": "who -q | awk 'NR==2{print $2}'",
 		"load_average":     "cat /proc/loadavg | awk '{print $1,$2,$3,$4}'",
 		"current_user":     "whoami",
-		"hostname":         "hostname",
+		"hostname":         "cat /etc/hostname",
 		"os":               "uname -o",
 		"system":           "cat /etc/os-release | grep PRETTY_NAME=",
 		"arch":             "arch",
@@ -107,6 +107,7 @@ func Device() map[string]string {
 
 	cpuTemperature, _ := strconv.Atoi(device["cpu_temperature"])
 	device["uptime"] = resolveTime(device["uptime"])
+	device["hostname"] = strings.Replace(strings.Replace(device["hostname"], " ", "", -1), "\n", "", -1)
 	device["system"] = strings.Replace(strings.Replace(strings.Split(device["system"], "\"")[1], " GNU/Linux ", " ", -1), "\"", "", -1)
 	if arch == "arm" {
 		device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 1, 64)
