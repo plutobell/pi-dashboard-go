@@ -1,9 +1,9 @@
 // @Program : Pi Dashboard Go (https://github.com/plutobell/pi-dashboard-go)
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
-// @Creation: 2020-8-1
-// @Last modify: 2020-8-14
-// @Version: 1.0.9
+// @Creation: 2020-08-01
+// @Last modify: 2021-03-31
+// @Version: 1.0.10
 
 package main
 
@@ -13,6 +13,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"runtime"
 	"strings"
 	"text/template"
 
@@ -80,6 +81,7 @@ func View(c echo.Context) error {
 	device := Device()
 	device["version"] = VERSION
 	device["site_title"] = Title
+	device["go_version"] = runtime.Version()
 
 	if ajax := c.QueryParam("ajax"); ajax == "true" {
 		return c.JSON(http.StatusOK, device)

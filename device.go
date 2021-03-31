@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-03-15
-// @Version: 1.0.9
+// @Last modify: 2021-03-31
+// @Version: 1.0.10
 
 package main
 
@@ -66,7 +66,7 @@ func Device() map[string]string {
 		"arch":             "arch",
 		"uname":            "uname -a",
 		"cpu_revision":     "cat /proc/cpuinfo | grep Revision | awk '{ print $3}'",
-		"model":            "cat /proc/cpuinfo | grep Model",
+		"model":            "cat /proc/cpuinfo | grep -i Model |sort -u |head -1",
 		"cpu_model_name":   "lscpu | grep 'Model name' | awk '{ print $3}'",
 		"cpu_cores":        "lscpu | grep 'CPU(s):' | awk '{ print $2}'",
 		"cpu_status":       "top -bn1 | grep -w '%Cpu(s):' | awk '{ print $2,$4,$6,$8,$10,$12,$14,$16}'",
@@ -111,7 +111,11 @@ func Device() map[string]string {
 	device["system"] = strings.Replace(strings.Replace(strings.Split(device["system"], "\"")[1], " GNU/Linux ", " ", -1), "\"", "", -1)
 	if arch == "arm" {
 		device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 1, 64)
-		device["model"] = strings.Split(device["model"], ":")[1]
+		if strings.Contains(device["model"], ":") {
+			device["model"] = strings.Split(device["model"], ":")[1]
+		} else {
+			device["model"] = ""
+		}
 	} else {
 		device["cpu_temperature"] = "NaN"
 		device["model"] = "Linux Computer"

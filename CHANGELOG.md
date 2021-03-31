@@ -1,5 +1,13 @@
 # Changelog #
 
+**2021-03-31**
+
+* v1.0.10 :
+  * Fix the bug of panic caused by empty device model information #1
+  * Fix the bug of not finding dashboard.min.js #2
+  * Fix the bug of invalid hostname command on arch
+  * Adds golang version display on view
+
 **2020-8-14**
 
 * v1.0.9 : 
