@@ -171,7 +171,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-                <div style="text-align: center; padding: 20px 0;"><img src="assets/devices/raspberry-pi.png" /></div>
+                <div style="text-align: center; padding: 20px 0;"><img src="assets/devices/{{.device_photo}}" /></div>
                 <div style="background-color: #E5E6E4; padding: 5px; border-radius: 3px;">
                     <div class="text-center" style="margin:10px; padding: 10px 0 10px 0; border-radius: 3px;"><div id="pimodel" style="font-size: 90%; font-weight: bolder; text-shadow: 0 1px 0 #fff;">{{.model}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#ADF6B1; border-radius: 3px;"><div class="label">IP</div><div id="hostip" style="font-size: 150%; font-weight: bolder;">{{.ip}}</div></div>
@@ -382,13 +382,14 @@
         <div class="rect5"></div>
     </div>
 </div>
+<span id="interval" style="display: none;">{{.interval}}</span>
 <script src="assets/dashboard.js"></script>
 <!--
 @Program : Pi Dashboard Go (https://github.com/plutobell/pi-dashboard-go)
 @Description: Golang implementation of pi-dashboard
 @Author: github.com/plutobell
 @Creation: 2020-08-01
-@Last modify: 2021-03-31
-@Version: 1.0.10 -->
+@Last modify: 2021-04-05
+@Version: 1.1.0 -->
 </body>
 </html>

@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-03-31
-// @Version: 1.0.10
+// @Last modify: 2021-04-05
+// @Version: 1.1.0
 
 package main
 
@@ -12,14 +12,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+	"unicode"
 )
 
 const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.0.10"
+	VERSION string = "1.1.0"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -29,16 +31,18 @@ const (
 var (
 	help    bool
 	version bool
-	//Port 端口
+	// Port 端口
 	Port string
-	//Title 网站标题
+	// Title 网站标题
 	Title string
-	//Net 网卡名称
+	// Net 网卡名称
 	Net string
-	//Disk 硬盘路径
+	// Disk 硬盘路径
 	Disk string
-	//Auth 用户名和密码
+	// Auth 用户名和密码
 	Auth string
+	// Interval 页面更新间隔
+	Interval string
 )
 
 func init() {
@@ -49,6 +53,7 @@ func init() {
 	flag.StringVar(&Net, "net", "lo", "specify the network device")
 	flag.StringVar(&Disk, "disk", "/", "specify the disk")
 	flag.StringVar(&Auth, "auth", USERNAME+":"+PASSWORD, "specify username and password")
+	flag.StringVar(&Interval, "interval", "1", "specify the update interval in seconds")
 
 	flag.Usage = usage
 }
@@ -61,13 +66,14 @@ func main() {
 		return
 	}
 	if version {
-		fmt.Println("Pi Dashboard Go  " + VERSION)
+		fmt.Println("Pi Dashboard Go " + VERSION)
 		fmt.Println("Project address: https://github.com/plutobell/pi-dashboard-go")
 		return
 	}
 	netDevs, err := Popen("cat /proc/net/dev")
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 	if !strings.Contains(netDevs, Net+":") {
 		fmt.Println("Network card does not exist")
@@ -76,6 +82,7 @@ func main() {
 	diskLists, err := Popen("blkid")
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 	if Disk != "/" {
 		if !strings.Contains(diskLists, Disk+":") {
@@ -101,14 +108,39 @@ func main() {
 		return
 	}
 
+	isDigit := true
+	for _, r := range Interval {
+		if !unicode.IsDigit(rune(r)) {
+			isDigit = false
+			break
+		}
+	}
+	if !isDigit {
+		fmt.Println("Interval parameter value is invalid")
+		return
+	}
+
+	IntervalInt, err := strconv.Atoi(Interval)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	if IntervalInt > 900 {
+		fmt.Println("Interval is too long")
+		return
+	} else if IntervalInt < 0 {
+		fmt.Println("Interval should be no less than 0")
+		return
+	}
+
 	Server()
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `Pi Dashboard Go  version: %s
+	fmt.Fprintf(os.Stderr, `Pi Dashboard Go version: %s
 Project address: https://github.com/plutobell/pi-dashboard-go
 
-Usage: Pi Dashboard Go [-help] [-version] [-port port] [-title title] [-net net] [-disk disk] [-auth usr:psw]
+Usage: Pi Dashboard Go [-help] [-version] [-port port] [-title title] [-net net] [-disk disk] [-auth usr:psw] [-interval interval]
 
 Options:
 `, VERSION)

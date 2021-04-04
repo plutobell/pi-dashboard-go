@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-03-31
-// @Version: 1.0.10
+// @Last modify: 2021-04-05
+// @Version: 1.1.0
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function () {
@@ -434,7 +434,7 @@ $(document).ready(function() {
 
         }
 
-    }, 1000);
+    }, (parseInt($("#interval").text()) * 1000) );
 }
 )
 

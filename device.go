@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-03-31
-// @Version: 1.0.10
+// @Last modify: 2021-04-05
+// @Version: 1.1.0
 
 package main
 
@@ -108,19 +108,34 @@ func Device() map[string]string {
 	cpuTemperature, _ := strconv.Atoi(device["cpu_temperature"])
 	device["uptime"] = resolveTime(device["uptime"])
 	device["hostname"] = strings.Replace(strings.Replace(device["hostname"], " ", "", -1), "\n", "", -1)
-	device["system"] = strings.Replace(strings.Replace(strings.Split(device["system"], "\"")[1], " GNU/Linux ", " ", -1), "\"", "", -1)
+	if strings.Contains(device["system"], "\"") {
+		device["system"] = strings.Replace(strings.Replace(strings.Split(device["system"], "\"")[1], " GNU/Linux ", " ", -1), "\"", "", -1)
+	} else {
+		device["system"] = "NaN"
+	}
+
 	if arch == "arm" {
 		device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 1, 64)
 		if strings.Contains(device["model"], ":") {
 			device["model"] = strings.Split(device["model"], ":")[1]
 		} else {
-			device["model"] = ""
+			device["model"] = "NaN"
 		}
 	} else {
 		device["cpu_temperature"] = "NaN"
 		device["model"] = "Linux Computer"
-		device["cpu_model_name"] = strings.Trim(strings.Split(device["cpu_model_name"], ":")[1], " ")
+		if strings.Contains(device["cpu_model_name"], ":") {
+			device["cpu_model_name"] = strings.Trim(strings.Split(device["cpu_model_name"], ":")[1], " ")
+		} else {
+			device["cpu_model_name"] = "NaN"
+		}
 	}
+	if strings.Contains(strings.ToLower(device["model"]), "raspberry") {
+		device["device_photo"] = "raspberry.png"
+	} else {
+		device["device_photo"] = "linux.png"
+	}
+
 	device["login_user_count"] = strings.Split(device["login_user_count"], "=")[1]
 	device["ip"] = strings.Split(device["ip"], "/")[0]
 	device["now_time"] = time.Now().Format("2006-01-02 15:04:05")

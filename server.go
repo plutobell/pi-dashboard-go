@@ -2,25 +2,29 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-03-31
-// @Version: 1.0.10
+// @Last modify: 2021-04-05
+// @Version: 1.1.0
 
 package main
 
 import (
 	"crypto/subtle"
+	"embed"
 	"fmt"
 	"io"
-	"log"
+	"io/fs"
 	"net/http"
+	"os"
 	"runtime"
 	"strings"
 	"text/template"
 
-	rice "github.com/GeertJohan/go.rice"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+//go:embed assets
+var f embed.FS
 
 //Template 模板
 type Template struct {
@@ -40,28 +44,16 @@ func Server() {
 
 	//注册中间件
 	e.Use(middleware.Recover())
-	//e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 	e.Use(middleware.BasicAuth(authFunc))
 
 	//静态文件
-	// e.Static("/assets", "assets")
-	// e.File("/favicon.ico", "assets/favicon.ico")
-	// the file server for rice. "app" is the folder where the files come from.
-	assetHandler := http.FileServer(rice.MustFindBox("assets").HTTPBox())
-	e.GET("/", echo.WrapHandler(assetHandler))
+	assetHandler := http.FileServer(getFileSystem(false))
 	e.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", assetHandler)))
 
 	//初始化模版引擎
-	templateBox, err := rice.FindBox("assets")
-	if err != nil {
-		log.Fatal(err)
-	}
-	templateString, err := templateBox.String("view.tmpl")
-	if err != nil {
-		log.Fatal(err)
-	}
 	t := &Template{
-		templates: template.Must(template.New("view.tmpl").Parse(templateString)),
+		templates: template.Must(template.New("").ParseFS(f, "assets/*.tmpl")),
 	}
 
 	//向echo实例注册模版引擎
@@ -72,15 +64,15 @@ func Server() {
 
 	// 启动服务
 	e.HideBanner = true
-	fmt.Println("⇨ Pi Dashboard Go  v" + VERSION)
+	fmt.Println("⇨ Pi Dashboard Go v" + VERSION)
 	e.Logger.Fatal(e.Start(port))
 }
 
-// View 函数
 func View(c echo.Context) error {
 	device := Device()
 	device["version"] = VERSION
 	device["site_title"] = Title
+	device["interval"] = Interval
 	device["go_version"] = runtime.Version()
 
 	if ajax := c.QueryParam("ajax"); ajax == "true" {
@@ -123,4 +115,19 @@ func authFunc(username, password string, c echo.Context) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func getFileSystem(useOS bool) http.FileSystem {
+	if useOS {
+		// fmt.Println("using live mode.")
+		return http.FS(os.DirFS("assets"))
+	}
+
+	// fmt.Println("using embed mode.")
+	fsys, err := fs.Sub(f, "assets")
+	if err != nil {
+		panic(err)
+	}
+
+	return http.FS(fsys)
 }

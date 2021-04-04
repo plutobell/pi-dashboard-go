@@ -1,5 +1,13 @@
 # Changelog #
 
+**2021-04-05**
+
+* v1.1.0 : 
+  * Replace go.rice with go embed
+  * Fix the bug of program error when unable to get cpu model
+  * Added new command line parameter: interval
+  * Added a different header image for non-Raspberry Pi devices
+
 **2021-03-31**
 
 * v1.0.10 :

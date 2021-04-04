@@ -34,10 +34,10 @@ chmod +x pi-dashboard-go
 **Pi Dashboard Go** can be configured via command line parameters：
 
 ```
-Pi Dashboard Go  version: 1.0.0
+Pi Dashboard Go version: 1.1.0
 Project address: https://github.com/plutobell/pi-dashboard-go
 
-Usage: Pi Dashboard Go [-help] [-version] [-port port] [-title title] [-net net] [-disk disk] [-auth usr:psw]
+Usage: Pi Dashboard Go [-help] [-version] [-port port] [-title title] [-net net] [-disk disk] [-auth usr:psw] [-interval interval]
 
 Options:
   -auth string
@@ -46,6 +46,8 @@ Options:
         specify the disk (default "/")
   -help
         this help
+  -interval string
+        specify the update interval in seconds (default "1")
   -net string
         specify the network device (default "lo")
   -port string
@@ -54,7 +56,6 @@ Options:
         specify the website title (default "Pi Dashboard Go")
   -version
         show version and exit
-
 ```
 
 
@@ -62,11 +63,8 @@ Options:
 ## Thanks
 
 * **[Pi Dashboard](https://github.com/spoonysonny/pi-dashboard)**
-
-* **[echo](https://github.com/labstack/echo)**
-
-* **[go.rice](https://github.com/GeertJohan/go.rice)**
 * **[Golang](https://golang.org/)**
+* **[echo](https://github.com/labstack/echo)**
 
 
 

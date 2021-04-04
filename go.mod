@@ -1,9 +1,8 @@
 module pi-dashboard-go
 
-go 1.15
+go 1.16
 
 require (
-	github.com/GeertJohan/go.rice v1.0.2
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/labstack/echo/v4 v4.1.17
 )
