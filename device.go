@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-04-05
-// @Version: 1.1.0
+// @Last modify: 2021-06-16
+// @Version: 1.1.1
 
 package main
 
@@ -148,7 +148,12 @@ func Device() map[string]string {
 	device["load_average_process_total"] = strings.Split(loadAverage[3], "/")[1]
 	delete(device, "load_average")
 
-	cpuStatus := strings.Split(device["cpu_status"], " ")
+	cpuStatusRaw := device["cpu_status"]
+	exceptionSituation := []string{"id,", "wa,", "hi,", "si,"}
+	for _, exception := range exceptionSituation {
+		cpuStatusRaw = strings.Replace(cpuStatusRaw, exception, "0.0", -1)
+	}
+	cpuStatus := strings.Split(cpuStatusRaw, " ")
 	device["cpu_status_user"] = cpuStatus[0]
 	device["cpu_status_nice"] = cpuStatus[1]
 	device["cpu_status_system"] = cpuStatus[2]

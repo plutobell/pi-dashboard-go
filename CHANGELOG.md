@@ -1,5 +1,12 @@
 # Changelog #
 
+**2021-06-16**
+
+* v1.1.1 : 
+  * Fix the bug of abnormal display of cpu information
+  * Use Go v1.16.5
+  * Update dependencies
+
 **2021-04-05**
 
 * v1.1.0 : 
