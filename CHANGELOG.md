@@ -1,5 +1,11 @@
 # Changelog #
 
+**2021-06-17**
+
+* v1.1.2 : 
+  * Changed the way cpu usage is calculated
+  * Update dependencies
+
 **2021-06-16**
 
 * v1.1.1 : 
