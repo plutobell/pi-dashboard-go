@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-06-16
-// @Version: 1.1.1
+// @Last modify: 2021-06-17
+// @Version: 1.1.2
 
 package main
 
@@ -70,6 +70,7 @@ func Device() map[string]string {
 		"cpu_model_name":   "lscpu | grep 'Model name' | awk '{ print $3}'",
 		"cpu_cores":        "lscpu | grep 'CPU(s):' | awk '{ print $2}'",
 		"cpu_status":       "top -bn1 | grep -w '%Cpu(s):' | awk '{ print $2,$4,$6,$8,$10,$12,$14,$16}'",
+		"cpu_used":         "cat <(grep 'cpu ' /proc/stat) <(sleep 1 && grep 'cpu ' /proc/stat) | awk -v RS='' '{print ($13-$2+$15-$4)*100/($13-$2+$15-$4+$16-$5)}'",
 		"cpu_temperature":  "cat /sys/class/thermal/thermal_zone0/temp",
 		"cpu_freq":         "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
 		"memory_total":     "cat /proc/meminfo | grep -w MemTotal: | awk '{ print $2}'",
@@ -151,7 +152,11 @@ func Device() map[string]string {
 	cpuStatusRaw := device["cpu_status"]
 	exceptionSituation := []string{"id,", "wa,", "hi,", "si,"}
 	for _, exception := range exceptionSituation {
-		cpuStatusRaw = strings.Replace(cpuStatusRaw, exception, "0.0", -1)
+		if exception == "id" {
+			cpuStatusRaw = strings.Replace(cpuStatusRaw, exception, "100.0", -1)
+		} else {
+			cpuStatusRaw = strings.Replace(cpuStatusRaw, exception, "0.0", -1)
+		}
 	}
 	cpuStatus := strings.Split(cpuStatusRaw, " ")
 	device["cpu_status_user"] = cpuStatus[0]
@@ -161,10 +166,9 @@ func Device() map[string]string {
 	device["cpu_status_iowait"] = cpuStatus[4]
 	device["cpu_status_irq"] = cpuStatus[5]
 	device["cpu_status_softirq"] = cpuStatus[6]
-	device["cpu_status_steal"] = cpuStatus[7]
 	delete(device, "cpu_status")
-	cpuFree, _ := strconv.ParseFloat(device["cpu_status_idle"], 64)
-	device["cpu_used"] = strconv.FormatFloat(100-cpuFree, 'f', 1, 64)
+	cpuUsed, _ := strconv.ParseFloat(device["cpu_used"], 64)
+	device["cpu_used"] = strconv.FormatFloat(cpuUsed, 'f', 1, 64)
 	if arch == "arm" {
 		cpuFreq, _ := strconv.ParseInt(device["cpu_freq"], 10, 64)
 		device["cpu_freq"] = strconv.FormatInt(cpuFreq/1000, 10)

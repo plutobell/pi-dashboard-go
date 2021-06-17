@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-06-16
-// @Version: 1.1.1
+// @Last modify: 2021-06-17
+// @Version: 1.1.2
 
 package main
 
@@ -21,7 +21,7 @@ const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.1.1"
+	VERSION string = "1.1.2"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
