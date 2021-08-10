@@ -3,7 +3,7 @@
 # @Author: github.com/plutobell
 # @Creation: 2020-08-10
 # @Last modify: 2021-08-10
-# @Version: 1.2.0
+# @Version: 1.2.1
 
 PROGRAM = pi-dashboard-go
 OUTPUT = build

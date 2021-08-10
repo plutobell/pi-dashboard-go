@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8" />
@@ -169,14 +170,17 @@
                 <div style="text-align: center; width: 100%;margin-bottom: 20px;"><img src="assets/devices/{{.device_photo}}" /></div>
                 <form action="/login" method="POST">
                     <div class="form-group">
-                        <input type="text" class="form-control box-radius" name="username" placeholder="Username">
+                        <input type="text" class="form-control box-radius" name="username" placeholder="Username" value="{{.login_username}}" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" class="form-control box-radius" name="password" placeholder="Password">
+                        <input type="password" class="form-control box-radius" name="password" placeholder="Password" value="{{.login_password}}" required>
                     </div>
                     <button type="submit" class="btn btn-default box-radius" style="width: 100%;">Sign in</button>
                 </form>
-                <p class="pull-left" style="font-size: 12px;margin-top: 20px;">Powered by <a target="_blank" href="https://ojoll.com/archives/86/" style="color:#D6264F;"><strong>Pi Dashboard Go</strong></a> v{{.version}}, <a target="_blank" href="https://ojoll.com" style="color:#D6264F;">北及</a> all rights reserved. <span style="color:#eaece5;";">{{.go_version}}</span>
+                <div style="color: #D6264F; text-align: center; margin-top: 20px;">
+                    <strong>{{.login_tips}}</strong>
+                </div>
+                <p class="pull-left" style="margin-top: 20px;">Powered by <a target="_blank" href="https://ojoll.com/archives/86/" style="color:#D6264F;"><strong>Pi Dashboard Go</strong></a> v{{.version}}, <a target="_blank" href="https://ojoll.com" style="color:#D6264F;">北及</a> all rights reserved. <span style="color:#eaece5;";">{{.go_version}}</span>
                 </p>
             </div>
             <div class="col-md-4">
@@ -190,6 +194,6 @@
 @Author: github.com/plutobell
 @Creation: 2020-08-01
 @Last modify: 2021-08-10
-@Version: 1.2.0 -->
+@Version: 1.2.1 -->
 </body>
 </html>

@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modify: 2021-08-10
-// @Version: 1.2.0
+// @Version: 1.2.1
 
 package main
 
@@ -21,7 +21,7 @@ const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.2.0"
+	VERSION string = "1.2.1"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -45,6 +45,8 @@ var (
 	Interval string
 	// SessionMaxAge 登录状态有效期
 	SessionMaxAge string
+	// 启用日志显示
+	EnableLogger bool
 	// SessionName Session名称
 	SessionName string
 )
@@ -59,6 +61,7 @@ func init() {
 	flag.StringVar(&Auth, "auth", USERNAME+":"+PASSWORD, "specify username and password")
 	flag.StringVar(&Interval, "interval", "1", "specify the update interval in seconds")
 	flag.StringVar(&SessionMaxAge, "session", "7", "specify the login status validity in days")
+	flag.BoolVar(&EnableLogger, "log", false, "enable log display")
 
 	SessionName = "pdg_session"
 
@@ -160,7 +163,9 @@ func usage() {
 	fmt.Fprintf(os.Stderr, `Pi Dashboard Go version: %s
 Project address: https://github.com/plutobell/pi-dashboard-go
 
-Usage: Pi Dashboard Go [-help] [-version] [-port port] [-title title] [-net net] [-disk disk] [-auth usr:psw] [-interval interval]
+Usage: Pi Dashboard Go [-auth USR:PSW] [-disk Paths] [-help]
+[-interval Seconds] [-log] [-net NIC] [-port Port]
+[-session Days] [-title Title] [-version]
 
 Options:
 `, VERSION)

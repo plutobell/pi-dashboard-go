@@ -2,6 +2,11 @@
 
 **2021-08-10**
 
+* v1.2.1 : 
+  * Added  login empty field checks
+  * Added login failure prompt message
+  * Added new command line parameter: log
+
 * v1.2.0 : 
   * Rewrite login authentication
   * Added new login page

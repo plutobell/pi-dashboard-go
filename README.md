@@ -41,7 +41,9 @@ chmod +x pi-dashboard-go
 Pi Dashboard Go version: 1.1.0
 Project address: https://github.com/plutobell/pi-dashboard-go
 
-Usage: Pi Dashboard Go [-help] [-version] [-port port] [-title title] [-net net] [-disk disk] [-auth usr:psw] [-interval interval]
+Usage: Pi Dashboard Go [-auth USR:PSW] [-disk Paths] [-help]
+[-interval Seconds] [-log] [-net NIC] [-port Port]
+[-session Days] [-title Title] [-version]
 
 Options:
   -auth string
@@ -52,6 +54,8 @@ Options:
         this help
   -interval string
         specify the update interval in seconds (default "1")
+  -log
+        enable log display
   -net string
         specify the network device (default "lo")
   -port string

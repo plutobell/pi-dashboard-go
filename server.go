@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modify: 2021-08-10
-// @Version: 1.2.0
+// @Version: 1.2.1
 
 package main
 
@@ -48,9 +48,11 @@ func Server() {
 
 	//注册中间件
 	e.Use(middleware.Recover())
-	// e.Use(middleware.Logger())
 	// e.Use(session.Middleware(sessions.NewFilesystemStore("./", []byte(getRandomString(16)))))
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(getRandomString(16)))))
+	if EnableLogger {
+		e.Use(middleware.Logger())
+	}
 
 	//静态文件
 	assetHandler := http.FileServer(getFileSystem(false))
@@ -175,6 +177,16 @@ func Login(c echo.Context) error {
 		device["site_title"] = Title
 		device["go_version"] = runtime.Version()
 		device["device_photo"] = Device()["device_photo"]
+
+		device["login_tips"] = ""
+		device["login_username"] = ""
+		device["login_password"] = ""
+
+		if loginUsername != "" && loginPassword != "" {
+			device["login_tips"] = "Wrong credentials"
+			device["login_username"] = loginUsername
+			device["login_password"] = loginPassword
+		}
 
 		return c.Render(http.StatusOK, "login.tmpl", device)
 	}
