@@ -5,7 +5,11 @@
 
 
 
-![](./screenshot.png)
+![](./screenshot_view.png)
+
+![](./screenshot_login.png)
+
+
 
 ## Install
 
@@ -33,7 +37,7 @@ chmod +x pi-dashboard-go
 
 **Pi Dashboard Go** can be configured via command line parameters：
 
-```
+```bash
 Pi Dashboard Go version: 1.1.0
 Project address: https://github.com/plutobell/pi-dashboard-go
 
@@ -52,6 +56,8 @@ Options:
         specify the network device (default "lo")
   -port string
         specify the running port (default "8080")
+  -session string
+        specify the login status validity in days (default "7")
   -title string
         specify the website title (default "Pi Dashboard Go")
   -version

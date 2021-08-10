@@ -2,8 +2,8 @@
 # @Description: Golang implementation of pi-dashboard
 # @Author: github.com/plutobell
 # @Creation: 2020-08-10
-# @Last modify: 2021-06-17
-# @Version: 1.1.2
+# @Last modify: 2021-08-10
+# @Version: 1.2.0
 
 PROGRAM = pi-dashboard-go
 OUTPUT = build

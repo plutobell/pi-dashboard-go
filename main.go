@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-06-17
-// @Version: 1.1.2
+// @Last modify: 2021-08-10
+// @Version: 1.2.0
 
 package main
 
@@ -21,7 +21,7 @@ const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.1.2"
+	VERSION string = "1.2.0"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -43,6 +43,10 @@ var (
 	Auth string
 	// Interval 页面更新间隔
 	Interval string
+	// SessionMaxAge 登录状态有效期
+	SessionMaxAge string
+	// SessionName Session名称
+	SessionName string
 )
 
 func init() {
@@ -54,6 +58,9 @@ func init() {
 	flag.StringVar(&Disk, "disk", "/", "specify the disk")
 	flag.StringVar(&Auth, "auth", USERNAME+":"+PASSWORD, "specify username and password")
 	flag.StringVar(&Interval, "interval", "1", "specify the update interval in seconds")
+	flag.StringVar(&SessionMaxAge, "session", "7", "specify the login status validity in days")
+
+	SessionName = "pdg_session"
 
 	flag.Usage = usage
 }
@@ -130,6 +137,19 @@ func main() {
 		return
 	} else if IntervalInt < 0 {
 		fmt.Println("Interval should be no less than 0")
+		return
+	}
+
+	SessionMaxAgeInt, err := strconv.Atoi(SessionMaxAge)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	if SessionMaxAgeInt > 365 {
+		fmt.Println("Session days is too long")
+		return
+	} else if SessionMaxAgeInt < 0 {
+		fmt.Println("Session days should be no less than 0")
 		return
 	}
 

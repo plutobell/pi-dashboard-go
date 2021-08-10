@@ -1,17 +1,26 @@
 # Changelog #
 
+**2021-08-10**
+
+* v1.2.0 : 
+  * Rewrite login authentication
+  * Added new login page
+  * Added new command line parameter: session
+  * Use Go v1.16.7
+  * Updated dependencies
+
 **2021-06-17**
 
 * v1.1.2 : 
   * Changed the way cpu usage is calculated
-  * Update dependencies
+  * Updated dependencies
 
 **2021-06-16**
 
 * v1.1.1 : 
   * Fix the bug of abnormal display of cpu information
   * Use Go v1.16.5
-  * Update dependencies
+  * Updated dependencies
 
 **2021-04-05**
 
@@ -27,7 +36,7 @@
   * Fix the bug of panic caused by empty device model information #1
   * Fix the bug of not finding dashboard.min.js #2
   * Fix the bug of invalid hostname command on arch
-  * Adds golang version display on view
+  * Added golang version display on view
 
 **2020-8-14**
 
@@ -40,7 +49,7 @@
 
 * v1.0.8 : 
   * Optimize swap display details
-  * Add shortcut buttons such as shutdown and reboot
+  * Added shortcut buttons such as shutdown and reboot
 
 **2020-8-7**
 
@@ -73,7 +82,7 @@
 * v1.0.2 : 
   * Improve command line parameter verification
   * Detail optimization
-  * Add test case device_test.go
+  * Added test case device_test.go
   * New page loading animation
 
 **2020-8-4**

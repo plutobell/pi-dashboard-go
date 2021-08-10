@@ -2,23 +2,27 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-06-17
-// @Version: 1.1.2
+// @Last modify: 2021-08-10
+// @Version: 1.2.0
 
 package main
 
 import (
-	"crypto/subtle"
 	"embed"
 	"fmt"
 	"io"
 	"io/fs"
+	"math/rand"
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -45,7 +49,8 @@ func Server() {
 	//注册中间件
 	e.Use(middleware.Recover())
 	// e.Use(middleware.Logger())
-	e.Use(middleware.BasicAuth(authFunc))
+	// e.Use(session.Middleware(sessions.NewFilesystemStore("./", []byte(getRandomString(16)))))
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte(getRandomString(16)))))
 
 	//静态文件
 	assetHandler := http.FileServer(getFileSystem(false))
@@ -61,6 +66,9 @@ func Server() {
 
 	// 路由
 	e.GET("/", View)
+	e.POST("/", View)
+	e.GET("/login", Login)
+	e.POST("/login", Login)
 
 	// 启动服务
 	e.HideBanner = true
@@ -75,6 +83,29 @@ func View(c echo.Context) error {
 	device["interval"] = Interval
 	device["go_version"] = runtime.Version()
 
+	sess, _ := session.Get(SessionName, c)
+	userName, _ := sess.Values["id"]
+	isLogin, _ := sess.Values["isLogin"]
+
+	if userName != USERNAME || isLogin != true {
+		return c.Redirect(http.StatusFound, "/login")
+	}
+
+	if ajax := c.QueryParam("logout"); ajax == "true" {
+		sess, _ := session.Get(SessionName, c)
+		sess.Options = &sessions.Options{
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: false,
+		}
+		sess.Values["id"] = ""
+		sess.Values["isLogin"] = ""
+
+		sess.Save(c.Request(), c.Response())
+
+		return c.Redirect(http.StatusFound, "/login")
+	}
+
 	if ajax := c.QueryParam("ajax"); ajax == "true" {
 		return c.JSON(http.StatusOK, device)
 	}
@@ -82,6 +113,7 @@ func View(c echo.Context) error {
 	status := map[string]string{
 		"status": "ok",
 	}
+
 	switch operate := c.QueryParam("operate"); {
 	case operate == "reboot":
 		go Popen("reboot")
@@ -97,24 +129,56 @@ func View(c echo.Context) error {
 	return c.Render(http.StatusOK, "view.tmpl", device)
 }
 
-func authFunc(username, password string, c echo.Context) (bool, error) {
-	// Be careful to use constant time comparison to prevent timing attacks
-	userName := USERNAME
-	passWord := PASSWORD
+func Login(c echo.Context) error {
+	username := USERNAME
+	password := PASSWORD
 	auth := strings.Split(Auth, ":")
 	if len(auth) == 2 {
-		userName = auth[0]
-		passWord = auth[1]
+		username = auth[0]
+		password = auth[1]
 	} else {
-		fmt.Println("Auth格式错误")
-		return false, nil
+		fmt.Println("Auth format error, will use default value")
 	}
 
-	if subtle.ConstantTimeCompare([]byte(userName), []byte(username)) == 1 &&
-		subtle.ConstantTimeCompare([]byte(passWord), []byte(password)) == 1 {
-		return true, nil
+	sess, _ := session.Get(SessionName, c)
+	//通过sess.Values读取会话数据
+	userName, _ := sess.Values["id"]
+	isLogin, _ := sess.Values["isLogin"]
+
+	if userName == username && isLogin == true {
+		return c.Redirect(http.StatusFound, "/")
 	}
-	return false, nil
+
+	//获取登录请求参数
+	loginUsername := c.FormValue("username")
+	loginPassword := c.FormValue("password")
+
+	if loginUsername == username && loginPassword == password {
+		maxAge, _ := strconv.Atoi(SessionMaxAge)
+
+		sess, _ := session.Get(SessionName, c)
+		sess.Options = &sessions.Options{
+			Path:     "/",            //所有页面都可以访问会话数据
+			MaxAge:   86400 * maxAge, //会话有效期，单位秒
+			HttpOnly: true,
+		}
+		//记录会话数据, sess.Values 是map类型，可以记录多个会话数据
+		sess.Values["id"] = loginUsername
+		sess.Values["isLogin"] = true
+		//保存用户会话数据
+		sess.Save(c.Request(), c.Response())
+
+		return c.Redirect(http.StatusFound, "/")
+	} else {
+		device := make(map[string]string)
+		device["version"] = VERSION
+		device["site_title"] = Title
+		device["go_version"] = runtime.Version()
+		device["device_photo"] = Device()["device_photo"]
+
+		return c.Render(http.StatusOK, "login.tmpl", device)
+	}
+
 }
 
 func getFileSystem(useOS bool) http.FileSystem {
@@ -130,4 +194,17 @@ func getFileSystem(useOS bool) http.FileSystem {
 	}
 
 	return http.FS(fsys)
+}
+
+func getRandomString(len int) string {
+	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	bytes := []byte(str)
+	result := []byte{}
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < len; i++ {
+		result = append(result, bytes[r.Intn(62)])
+	}
+
+	return string(result)
 }
