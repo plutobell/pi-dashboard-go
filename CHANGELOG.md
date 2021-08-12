@@ -1,5 +1,16 @@
 # Changelog #
 
+**2021-08-12**
+
+* v1.3.0 : 
+  * Adjusted routing structure
+  * Adjusted log formatting
+  * Added gzip compression
+  * Enhanced web security
+  * Login request changed to asynchronous
+  * Refactored part of the code
+  * Updated dependencies
+
 **2021-08-10**
 
 * v1.2.1 : 

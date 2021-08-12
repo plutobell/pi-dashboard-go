@@ -2,13 +2,14 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-08-10
-// @Version: 1.2.1
+// @Last modify: 2021-08-12
+// @Version: 1.3.0
 
 package main
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
@@ -48,10 +49,15 @@ func Server() {
 
 	//注册中间件
 	e.Use(middleware.Recover())
+	e.Use(middleware.Secure())
+	e.Use(middleware.Gzip())
 	// e.Use(session.Middleware(sessions.NewFilesystemStore("./", []byte(getRandomString(16)))))
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(getRandomString(16)))))
 	if EnableLogger {
-		e.Use(middleware.Logger())
+		// e.Use(middleware.Logger())
+		e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+			Format: "${remote_ip} - - [${time_rfc3339}] ${method} ${uri} ${status} ${latency_human} ${bytes_in} ${bytes_out} ${user_agent}\n",
+		}))
 	}
 
 	//静态文件
@@ -68,9 +74,8 @@ func Server() {
 
 	// 路由
 	e.GET("/", View)
-	e.POST("/", View)
 	e.GET("/login", Login)
-	e.POST("/login", Login)
+	e.POST("/api/*", API)
 
 	// 启动服务
 	e.HideBanner = true
@@ -79,21 +84,105 @@ func Server() {
 }
 
 func View(c echo.Context) error {
+	username, _ := getNowUsernameAndPassword()
+
+	sess, _ := session.Get(SessionName, c)
+	//通过sess.Values读取会话数据
+	userName, _ := sess.Values["id"]
+	isLogin, _ := sess.Values["isLogin"]
+
+	if userName != username || isLogin != true {
+		return c.Redirect(http.StatusTemporaryRedirect, "/login")
+	}
+
 	device := Device()
 	device["version"] = VERSION
 	device["site_title"] = Title
 	device["interval"] = Interval
 	device["go_version"] = runtime.Version()
 
+	return c.Render(http.StatusOK, "view.tmpl", device)
+}
+
+func Login(c echo.Context) error {
+	username, _ := getNowUsernameAndPassword()
+
 	sess, _ := session.Get(SessionName, c)
+	//通过sess.Values读取会话数据
 	userName, _ := sess.Values["id"]
 	isLogin, _ := sess.Values["isLogin"]
 
-	if userName != USERNAME || isLogin != true {
-		return c.Redirect(http.StatusFound, "/login")
+	if userName == username && isLogin == true {
+		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 
-	if ajax := c.QueryParam("logout"); ajax == "true" {
+	device := make(map[string]string)
+	device["version"] = VERSION
+	device["site_title"] = Title
+	device["go_version"] = runtime.Version()
+	device["device_photo"] = Device()["device_photo"]
+
+	return c.Render(http.StatusOK, "login.tmpl", device)
+}
+
+func API(c echo.Context) error {
+	switch method := strings.Split(c.Request().URL.Path, "api/")[1]; {
+
+	case method == "login":
+		username, password := getNowUsernameAndPassword()
+
+		sess, _ := session.Get(SessionName, c)
+		//通过sess.Values读取会话数据
+		userName, _ := sess.Values["id"]
+		isLogin, _ := sess.Values["isLogin"]
+
+		if userName == username && isLogin == true {
+			status := map[string]bool{
+				"status": true,
+			}
+			return c.JSON(http.StatusOK, status)
+		}
+
+		//获取登录信息
+		json_map := make(map[string]interface{})
+		err := json.NewDecoder(c.Request().Body).Decode(&json_map)
+		var loginUsername, loginPassword interface{}
+		if err != nil {
+			loginUsername = ""
+			loginPassword = ""
+		} else {
+			loginUsername = json_map["username"]
+			loginPassword = json_map["password"]
+		}
+
+		if loginUsername == username && loginPassword == password {
+			maxAge, _ := strconv.Atoi(SessionMaxAge)
+
+			sess, _ := session.Get(SessionName, c)
+			sess.Options = &sessions.Options{
+				Path:     "/",            //所有页面都可以访问会话数据
+				MaxAge:   86400 * maxAge, //会话有效期，单位秒
+				HttpOnly: true,
+			}
+			//记录会话数据, sess.Values 是map类型，可以记录多个会话数据
+			sess.Values["id"] = loginUsername
+			sess.Values["isLogin"] = true
+			//保存用户会话数据
+			sess.Save(c.Request(), c.Response())
+
+			status := map[string]bool{
+				"status": true,
+			}
+			return c.JSON(http.StatusOK, status)
+		} else {
+
+			status := map[string]bool{
+				"status": false,
+			}
+			return c.JSON(http.StatusOK, status)
+		}
+
+	case method == "logout":
 		sess, _ := session.Get(SessionName, c)
 		sess.Options = &sessions.Options{
 			Path:     "/",
@@ -105,92 +194,82 @@ func View(c echo.Context) error {
 
 		sess.Save(c.Request(), c.Response())
 
-		return c.Redirect(http.StatusFound, "/login")
-	}
+		status := map[string]bool{
+			"status": true,
+		}
+		return c.JSON(http.StatusOK, status)
 
-	if ajax := c.QueryParam("ajax"); ajax == "true" {
+	case method == "device":
+		username, _ := getNowUsernameAndPassword()
+
+		sess, _ := session.Get(SessionName, c)
+		//通过sess.Values读取会话数据
+		userName, _ := sess.Values["id"]
+		isLogin, _ := sess.Values["isLogin"]
+
+		if userName != username || isLogin != true {
+			status := map[string]string{
+				"result": "Unauthorized",
+			}
+			return c.JSON(http.StatusUnauthorized, status)
+		}
+
+		device := Device()
+		device["version"] = VERSION
+		device["site_title"] = Title
+		device["interval"] = Interval
+		device["go_version"] = runtime.Version()
+
 		return c.JSON(http.StatusOK, device)
+
+	case method == "operation":
+		username, _ := getNowUsernameAndPassword()
+
+		sess, _ := session.Get(SessionName, c)
+		//通过sess.Values读取会话数据
+		userName, _ := sess.Values["id"]
+		isLogin, _ := sess.Values["isLogin"]
+
+		if userName != username || isLogin != true {
+			status := map[string]string{
+				"result": "Unauthorized",
+			}
+			return c.JSON(http.StatusUnauthorized, status)
+		}
+
+		status := map[string]bool{
+			"status": true,
+		}
+
+		switch operate := c.QueryParam("action"); {
+		case operate == "reboot":
+			go Popen("reboot")
+			return c.JSON(http.StatusOK, status)
+		case operate == "shutdown":
+			go Popen("shutdown -h now")
+			return c.JSON(http.StatusOK, status)
+		case operate == "dropcaches":
+			go Popen("echo 3 > /proc/sys/vm/drop_caches")
+			return c.JSON(http.StatusOK, status)
+		}
 	}
 
 	status := map[string]string{
-		"status": "ok",
+		"status": "UnknownMethod",
 	}
-
-	switch operate := c.QueryParam("operate"); {
-	case operate == "reboot":
-		go Popen("reboot")
-		return c.JSON(http.StatusOK, status)
-	case operate == "shutdown":
-		go Popen("shutdown -h now")
-		return c.JSON(http.StatusOK, status)
-	case operate == "dropcaches":
-		go Popen("echo 3 > /proc/sys/vm/drop_caches")
-		return c.JSON(http.StatusOK, status)
-	}
-
-	return c.Render(http.StatusOK, "view.tmpl", device)
+	return c.JSON(http.StatusOK, status)
 }
 
-func Login(c echo.Context) error {
-	username := USERNAME
-	password := PASSWORD
+func getNowUsernameAndPassword() (username, password string) {
+	username = USERNAME
+	password = PASSWORD
 	auth := strings.Split(Auth, ":")
 	if len(auth) == 2 {
 		username = auth[0]
 		password = auth[1]
-	} else {
-		fmt.Println("Auth format error, will use default value")
 	}
 
-	sess, _ := session.Get(SessionName, c)
-	//通过sess.Values读取会话数据
-	userName, _ := sess.Values["id"]
-	isLogin, _ := sess.Values["isLogin"]
-
-	if userName == username && isLogin == true {
-		return c.Redirect(http.StatusFound, "/")
-	}
-
-	//获取登录请求参数
-	loginUsername := c.FormValue("username")
-	loginPassword := c.FormValue("password")
-
-	if loginUsername == username && loginPassword == password {
-		maxAge, _ := strconv.Atoi(SessionMaxAge)
-
-		sess, _ := session.Get(SessionName, c)
-		sess.Options = &sessions.Options{
-			Path:     "/",            //所有页面都可以访问会话数据
-			MaxAge:   86400 * maxAge, //会话有效期，单位秒
-			HttpOnly: true,
-		}
-		//记录会话数据, sess.Values 是map类型，可以记录多个会话数据
-		sess.Values["id"] = loginUsername
-		sess.Values["isLogin"] = true
-		//保存用户会话数据
-		sess.Save(c.Request(), c.Response())
-
-		return c.Redirect(http.StatusFound, "/")
-	} else {
-		device := make(map[string]string)
-		device["version"] = VERSION
-		device["site_title"] = Title
-		device["go_version"] = runtime.Version()
-		device["device_photo"] = Device()["device_photo"]
-
-		device["login_tips"] = ""
-		device["login_username"] = ""
-		device["login_password"] = ""
-
-		if loginUsername != "" && loginPassword != "" {
-			device["login_tips"] = "Wrong credentials"
-			device["login_username"] = loginUsername
-			device["login_password"] = loginPassword
-		}
-
-		return c.Render(http.StatusOK, "login.tmpl", device)
-	}
-
+	return username, password
 }
 
 func getFileSystem(useOS bool) http.FileSystem {

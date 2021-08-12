@@ -168,17 +168,17 @@
             </div>
             <div class="col-md-4" style="padding: 5%;">
                 <div style="text-align: center; width: 100%;margin-bottom: 20px;"><img src="assets/devices/{{.device_photo}}" /></div>
-                <form action="/login" method="POST">
+                <form>
                     <div class="form-group">
-                        <input type="text" class="form-control box-radius" name="username" placeholder="Username" value="{{.login_username}}" required>
+                        <input type="text" class="form-control box-radius" id="username" name="username" placeholder="Username" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" class="form-control box-radius" name="password" placeholder="Password" value="{{.login_password}}" required>
+                        <input type="password" class="form-control box-radius" id="password" name="password" placeholder="Password" required>
                     </div>
-                    <button type="submit" class="btn btn-default box-radius" style="width: 100%;">Sign in</button>
+                    <button type="button" id="login-btn" class="btn btn-default" style="width: 100%;">Sign in</button>
                 </form>
                 <div style="color: #D6264F; text-align: center; margin-top: 20px;">
-                    <strong>{{.login_tips}}</strong>
+                    <strong id="login-tips"></strong>
                 </div>
                 <p class="pull-left" style="margin-top: 20px;">Powered by <a target="_blank" href="https://ojoll.com/archives/86/" style="color:#D6264F;"><strong>Pi Dashboard Go</strong></a> v{{.version}}, <a target="_blank" href="https://ojoll.com" style="color:#D6264F;">北及</a> all rights reserved. <span style="color:#eaece5;";">{{.go_version}}</span>
                 </p>
@@ -188,12 +188,13 @@
         </div>
     </div>
 </div>
+<script src="assets/login.js"></script>
 <!--
 @Program : Pi Dashboard Go (https://github.com/plutobell/pi-dashboard-go)
 @Description: Golang implementation of pi-dashboard
 @Author: github.com/plutobell
 @Creation: 2020-08-01
-@Last modify: 2021-08-10
-@Version: 1.2.1 -->
+@Last modify: 2021-08-12
+@Version: 1.3.0 -->
 </body>
 </html>

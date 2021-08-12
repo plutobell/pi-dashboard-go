@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-08-10
-// @Version: 1.2.1
+// @Last modify: 2021-08-12
+// @Version: 1.3.0
 
 package main
 
@@ -52,6 +52,21 @@ func Popen(command string) (string, error) {
 
 //Device 函数获取设备信息
 func Device() map[string]string {
+	//piCpuModelInfo Raspberry Pi CPU型号信息
+	piCpuModelInfo := map[string]string{
+		"Raspberry Pi 4 Model B":  "BCM2711",
+		"Raspberry Pi 3 Model B+": "BCM2837B0",
+		"Raspberry Pi 3 Model B":  "BCM2837/A0/B0",
+		"Raspberry Pi 2 Model B":  "BCM2836/7",
+		"Raspberry Pi Model B+":   "BCM2835",
+		"Raspberry Pi Model B":    "BCM2835",
+		"Raspberry Pi 3 Model A+": "BCM2837B0",
+		"Raspberry Pi Model A+":   "BCM2835",
+		"Raspberry Pi Zero WH":    "BCM2835",
+		"Raspberry Pi Zero W":     "BCM2835",
+		"Raspberry Pi Zero":       "BCM2835",
+	}
+
 	//Command 命令列表
 	device := make(map[string]string)
 	var command map[string]string = map[string]string{
@@ -65,8 +80,8 @@ func Device() map[string]string {
 		"system":           "cat /etc/os-release | grep PRETTY_NAME=",
 		"arch":             "arch",
 		"uname":            "uname -a",
-		"cpu_revision":     "cat /proc/cpuinfo | grep Revision | awk '{ print $3}'",
 		"model":            "cat /proc/cpuinfo | grep -i Model |sort -u |head -1",
+		"cpu_revision":     "cat /proc/cpuinfo | grep Revision | awk '{ print $3}'",
 		"cpu_model_name":   "lscpu | grep 'Model name' | awk '{ print $3}'",
 		"cpu_cores":        "lscpu | grep 'CPU(s):' | awk '{ print $2}'",
 		"cpu_status":       "top -bn1 | grep -w '%Cpu(s):' | awk '{ print $2,$4,$6,$8,$10,$12,$14,$16}'",
@@ -122,6 +137,15 @@ func Device() map[string]string {
 		} else {
 			device["model"] = "NaN"
 		}
+
+		for key, value := range piCpuModelInfo {
+			if strings.Contains(device["model"], key) {
+				device["cpu_revision"] = device["cpu_model_name"]
+				device["cpu_model_name"] = value
+				break
+			}
+		}
+
 	} else {
 		device["cpu_temperature"] = "NaN"
 		device["model"] = "Linux Computer"

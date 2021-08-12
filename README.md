@@ -5,9 +5,9 @@
 
 
 
-![](./screenshot_view.png)
+![](./screenshots/screenshot_view.png)
 
-![](./screenshot_login.png)
+![](./screenshots/screenshot_login.png)
 
 
 
@@ -38,7 +38,7 @@ chmod +x pi-dashboard-go
 **Pi Dashboard Go** can be configured via command line parameters：
 
 ```bash
-Pi Dashboard Go version: 1.2.1
+Pi Dashboard Go version: 1.3.0
 Project address: https://github.com/plutobell/pi-dashboard-go
 
 Usage: Pi Dashboard Go [-auth USR:PSW] [-disk Paths] [-help]

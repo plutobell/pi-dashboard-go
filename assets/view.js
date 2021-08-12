@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-08-10
-// @Version: 1.2.1
+// @Last modify: 2021-08-12
+// @Version: 1.3.0
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function () {
@@ -319,7 +319,7 @@ $(document).ready(function() {
     net_Out2 = [0,0,0,0,0,0,0,0,0,0];
 
     setInterval(function() {
-        $.getJSON('?ajax=true', function(data){
+        $.post('api/device', function(data){
             $("#loading").hide();
             removeUnScroll();
 
@@ -450,9 +450,25 @@ function removeUnScroll() {
 }
 
 
+$("#logout").click(function(){
+    $("#logout").attr("disabled", true);
+    $.post('/api/logout', function(result){
+        if (result.status == true) {
+            $("#logout").attr("disabled", false);
+            $(window).attr('location','/login');
+        } else {
+            $("#logout").attr("disabled", false);
+            window.alert("Sign out failed");
+        }
+    }).fail(function() {
+        $("#login").attr("disabled", false);
+        window.alert("Sign out failed");
+    });
+});
+
 $("#reboot").click(function(){
-    $.getJSON('?operate=reboot', function(data){
-        if (data.status == "ok") {
+    $.post('/api/operation?action=reboot', function(data){
+        if (data.status == true) {
             window.alert("OK")
             $("#loading").show();
             unScroll();
@@ -465,8 +481,8 @@ $("#reboot").click(function(){
 });
 
 $("#shutdown").click(function(){
-    $.getJSON('?operate=shutdown', function(data){
-        if (data.status == "ok") {
+    $.post('/api/operation?action=shutdown', function(data){
+        if (data.status == true) {
             window.alert("OK");
             $("#loading").show();
             unScroll();
@@ -479,8 +495,8 @@ $("#shutdown").click(function(){
 });
 
 $("#dropcaches").click(function(){
-    $.getJSON('?operate=dropcaches', function(data){
-        if (data.status == "ok") {
+    $.post('/api/operation?action=dropcaches', function(data){ //$.getJSON()
+        if (data.status == true) {
             window.alert("OK");
             // $("#loading").show();
             // unScroll();

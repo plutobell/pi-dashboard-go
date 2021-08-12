@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"testing"
 )
 
@@ -29,22 +28,6 @@ func Test_resolveTime(t *testing.T) {
 
 func Test_bytesRound(t *testing.T) {
 	if last := bytesRound(1073741824, 2); last == "1.0GB" {
-		t.Log("Pass")
-	} else {
-		t.Error("Fail")
-	}
-}
-
-func Test_getFileSystem(t *testing.T) {
-	if _, ok := getFileSystem(false).(http.FileSystem); ok {
-		t.Log("Pass")
-	} else {
-		t.Error("Fail")
-	}
-}
-
-func Test_getRandomString(t *testing.T) {
-	if res := getRandomString(16); len(res) == 16 {
 		t.Log("Pass")
 	} else {
 		t.Error("Fail")
