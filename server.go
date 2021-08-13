@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-13
-// @Version: 1.3.1
+// @Version: 1.3.2
 
 package main
 
@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -248,17 +249,31 @@ func API(c echo.Context) error {
 			"status": true,
 		}
 
-		switch operate := c.QueryParam("action"); {
-		case operate == "reboot":
+		switch operation := c.QueryParam("action"); {
+		case operation == "reboot":
 			go Popen("reboot")
 			return c.JSON(http.StatusOK, status)
-		case operate == "shutdown":
+		case operation == "shutdown":
 			go Popen("shutdown -h now")
 			return c.JSON(http.StatusOK, status)
-		case operate == "dropcaches":
+		case operation == "dropcaches":
 			go Popen("echo 3 > /proc/sys/vm/drop_caches")
 			return c.JSON(http.StatusOK, status)
+		case operation == "checknewversion":
+			nowVersion, _ := getLatestVersionFromGitHub()
+			result := make(map[string]string)
+			if nowVersion > VERSION {
+				result["new_version"] = nowVersion
+				result["new_version_url"] = PROJECT + "/releases/tag/v" + nowVersion
+			} else {
+				result["new_version"] = ""
+				result["new_version_url"] = ""
+			}
+
+			return c.JSON(http.StatusOK, result)
+
 		}
+
 	}
 
 	status := map[string]string{
@@ -305,4 +320,43 @@ func getRandomString(len int) string {
 	}
 
 	return string(result)
+}
+
+func getLatestVersionFromGitHub() (nowVersion string, downloadURL []string) {
+	url := "https://api.github.com/repos/plutobell/pi-dashboard-go/releases/latest"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	result := make(map[string]interface{})
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		panic(err)
+	}
+
+	for key, value := range result {
+		if key == "tag_name" {
+			nowVersion = value.(string)[1:]
+		}
+		if key == "assets" {
+			assets := value.([]interface{})
+			for _, architecture := range assets {
+				for key, value := range architecture.(map[string]interface{}) {
+					if key == "browser_download_url" {
+						downloadURL = append(downloadURL, value.(string))
+					}
+				}
+			}
+		}
+	}
+
+	return nowVersion, downloadURL
 }

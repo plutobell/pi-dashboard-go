@@ -2,6 +2,8 @@
 
 **2021-08-13**
 
+* v1.3.2 : 
+  * Added automatic version detection and prompting
 * v1.3.1 : 
   * Added csrf protection
   * Adjusted some details

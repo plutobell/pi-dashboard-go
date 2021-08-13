@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-13
-// @Version: 1.3.1
+// @Version: 1.3.2
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function (event) {
@@ -493,7 +493,7 @@ $("#reboot").click(function(){
         window.alert("Fail");
         $("#loading").show();
         unScroll();
-        });
+    });
 });
 
 $("#shutdown").click(function(){
@@ -508,7 +508,7 @@ $("#shutdown").click(function(){
         window.alert("Fail");
         $("#loading").show();
         unScroll();
-        });
+    });
 });
 
 $("#dropcaches").click(function(){
@@ -523,7 +523,27 @@ $("#dropcaches").click(function(){
         window.alert("Fail");
         // $("#loading").show();
         // unScroll();
-        });
+    });
+});
+
+// Check New Version
+$(document).ready(function(){
+    $.ajaxSetup(csrfAddToAjaxHeader());
+    $.post('/api/operation?action=checknewversion', function(data){
+        if (data.new_version != "" && data.new_version_url != "") {
+            $("#new-url").attr("href", data.new_version_url);
+            $("#new-version").attr("title", "v" + data.new_version);
+            $("#new-box").show(1000);
+        } else {
+            $("#new-box").hide(1000);
+            $("#new-url").attr("href", "javascript:void(0);");
+            $("#new-version").attr("title", "New Version");
+        }
+    }).fail(function() {
+        $("#new-box").hide(1000);
+        $("#new-url").attr("href", "javascript:void(0);");
+        $("#new-version").attr("title", "New Version");
+    });
 });
 
 

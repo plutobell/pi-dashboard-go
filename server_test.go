@@ -28,3 +28,11 @@ func Test_getRandomString(t *testing.T) {
 		t.Error("Fail")
 	}
 }
+
+func Test_getLatestVersionFromGitHub(t *testing.T) {
+	if nowVersion, downloadURL := getLatestVersionFromGitHub(); nowVersion != "" && len(downloadURL) > 0 {
+		t.Log("Pass")
+	} else {
+		t.Error("Fail")
+	}
+}

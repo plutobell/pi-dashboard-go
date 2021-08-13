@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-13
-// @Version: 1.3.1
+// @Version: 1.3.2
 
 package main
 
@@ -18,10 +18,12 @@ import (
 )
 
 const (
+	//PROJECT 项目地址
+	PROJECT string = "https://github.com/plutobell/pi-dashboard-go"
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.3.1"
+	VERSION string = "1.3.2"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -77,7 +79,7 @@ func main() {
 	}
 	if version {
 		fmt.Println("Pi Dashboard Go " + VERSION)
-		fmt.Println("Project address: https://github.com/plutobell/pi-dashboard-go")
+		fmt.Println("Project address: " + PROJECT)
 		return
 	}
 	netDevs, err := Popen("cat /proc/net/dev")
