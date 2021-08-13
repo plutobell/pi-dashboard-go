@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-08-12
-// @Version: 1.3.0
+// @Last modification: 2021-08-13
+// @Version: 1.3.1
 
 package main
 
@@ -21,7 +21,7 @@ const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.3.0"
+	VERSION string = "1.3.1"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -63,7 +63,7 @@ func init() {
 	flag.StringVar(&SessionMaxAge, "session", "7", "specify the login status validity in days")
 	flag.BoolVar(&EnableLogger, "log", false, "enable log display")
 
-	SessionName = "pdg_session"
+	SessionName = "logged_in"
 
 	flag.Usage = usage
 }

@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-08-12
-// @Version: 1.3.0
+// @Last modification: 2021-08-13
+// @Version: 1.3.1
 
 package main
 
@@ -50,9 +50,16 @@ func Server() {
 	//注册中间件
 	e.Use(middleware.Recover())
 	e.Use(middleware.Secure())
-	e.Use(middleware.Gzip())
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 9,
+	}))
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup:  "header:X-XSRF-TOKEN",
+		CookieName:   "cf_sid",
+		CookieMaxAge: 86400,
+	}))
 	// e.Use(session.Middleware(sessions.NewFilesystemStore("./", []byte(getRandomString(16)))))
-	e.Use(session.Middleware(sessions.NewCookieStore([]byte(getRandomString(16)))))
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte(getRandomString(32)))))
 	if EnableLogger {
 		// e.Use(middleware.Logger())
 		e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{

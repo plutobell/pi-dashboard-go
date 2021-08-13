@@ -2,14 +2,21 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modify: 2021-08-12
-// @Version: 1.3.0
+// @Last modification: 2021-08-13
+// @Version: 1.3.1
 
 window.oncontextmenu=function(){return false;}
-window.onkeydown = window.onkeyup = window.onkeypress = function () {
-    window.event.returnValue = false;
-    return false;
+window.onkeydown = window.onkeyup = window.onkeypress = function (event) {
+    if (event.keyCode === 123) {
+        event.preventDefault();
+        window.event.returnValue = false;
+    }
 }
+window.addEventListener('keydown', function (event) {
+    if (event.ctrlKey) {
+        event.preventDefault();
+    }
+})
 
 unScroll();
 
@@ -319,6 +326,7 @@ $(document).ready(function() {
     net_Out2 = [0,0,0,0,0,0,0,0,0,0];
 
     setInterval(function() {
+        $.ajaxSetup(csrfAddToAjaxHeader());
         $.post('api/device', function(data){
             $("#loading").hide();
             removeUnScroll();
@@ -443,15 +451,22 @@ function unScroll() {
     $(document).on('scroll.unable',function (e) {
         $(document).scrollTop(top);
     })
+    $(document.body).css({
+        "overflow-y": "hidden"
+    });
 }
 
 function removeUnScroll() {
     $(document).unbind("scroll.unable");
+    $(document.body).css({
+        "overflow-y": "auto"
+    });
 }
 
 
 $("#logout").click(function(){
     $("#logout").attr("disabled", true);
+    $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/logout', function(result){
         if (result.status == true) {
             $("#logout").attr("disabled", false);
@@ -467,6 +482,7 @@ $("#logout").click(function(){
 });
 
 $("#reboot").click(function(){
+    $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=reboot', function(data){
         if (data.status == true) {
             window.alert("OK")
@@ -481,6 +497,7 @@ $("#reboot").click(function(){
 });
 
 $("#shutdown").click(function(){
+    $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=shutdown', function(data){
         if (data.status == true) {
             window.alert("OK");
@@ -495,6 +512,7 @@ $("#shutdown").click(function(){
 });
 
 $("#dropcaches").click(function(){
+    $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=dropcaches', function(data){ //$.getJSON()
         if (data.status == true) {
             window.alert("OK");
@@ -507,3 +525,74 @@ $("#dropcaches").click(function(){
         // unScroll();
         });
 });
+
+
+
+// Login Page
+$("form").keyup(function(event){
+    if(event.keyCode == 13){
+        $("#login-btn").trigger("click");
+    }
+});
+
+$("#login-btn").click(function(){
+    $("#login-btn").attr("disabled", true);
+    var username = $("#username").val();
+    var password = $("#password").val();
+    var json = {
+        "username": username,
+        "password": password,
+    };
+    if (username == "" || password == "") {
+        $("#login-tips").text("Username or password is empty")
+        $("#login-btn").attr("disabled", false);
+    } else {
+        $.ajaxSetup(csrfAddToAjaxHeader());
+        $.post('/api/login', JSON.stringify(json), function(result){
+            if (result.status == true) {
+                $("#login-tips").text("")
+                $(window).attr('location','/');
+            } else if (result.status == false) {
+                $("#login-tips").text("Wrong credentialss")
+                $("#login-btn").attr("disabled", false);
+            }
+        }).fail(function() {
+            $("#login-tips").text("Unknown error")
+            $("#login-btn").attr("disabled", false);
+        });
+    }
+
+});
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function csrfSafeMethod(method) {
+    // 这些HTTP方法不要求携带CSRF令牌。test()是js正则表达式方法，若模板匹配成功，则返回true
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+function csrfAddToAjaxHeader() {
+    var csrftoken = getCookie('cf_sid');
+
+    return {
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-XSRF-TOKEN", csrftoken);
+            }
+        }
+    }
+}

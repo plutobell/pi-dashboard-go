@@ -1,5 +1,12 @@
 # Changelog #
 
+**2021-08-13**
+
+* v1.3.1 : 
+  * Added csrf protection
+  * Adjusted some details
+  * Updated dependencies
+
 **2021-08-12**
 
 * v1.3.0 : 
