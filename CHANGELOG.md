@@ -1,5 +1,13 @@
 # Changelog #
 
+**2021-08-14**
+
+* v1.3.3 : 
+  * Added automatic recognition and switching of favicon
+  * Adjusted static file path structure
+  * Adjusted project structure
+  * Updated dependencies
+
 **2021-08-13**
 
 * v1.3.2 : 

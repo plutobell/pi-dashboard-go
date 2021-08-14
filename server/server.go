@@ -2,10 +2,10 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-13
-// @Version: 1.3.2
+// @Last modification: 2021-08-14
+// @Version: 1.3.3
 
-package main
+package server
 
 import (
 	"embed"
@@ -23,6 +23,9 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/plutobell/pi-dashboard-go/config"
+	"github.com/plutobell/pi-dashboard-go/device"
+
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -30,7 +33,7 @@ import (
 )
 
 //go:embed assets
-var f embed.FS
+var assets embed.FS
 
 //Template 模板
 type Template struct {
@@ -43,10 +46,10 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 //Server 实例
-func Server() {
+func Run() {
 	//Echo 实例
 	e := echo.New()
-	port := ":" + Port
+	port := ":" + config.Port
 
 	//注册中间件
 	e.Use(middleware.Recover())
@@ -61,7 +64,7 @@ func Server() {
 	}))
 	// e.Use(session.Middleware(sessions.NewFilesystemStore("./", []byte(getRandomString(16)))))
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(getRandomString(32)))))
-	if EnableLogger {
+	if config.EnableLogger {
 		// e.Use(middleware.Logger())
 		e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 			Format: "${remote_ip} - - [${time_rfc3339}] ${method} ${uri} ${status} ${latency_human} ${bytes_in} ${bytes_out} ${user_agent}\n",
@@ -69,32 +72,41 @@ func Server() {
 	}
 
 	//静态文件
-	assetHandler := http.FileServer(getFileSystem(false))
-	e.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", assetHandler)))
+	btnsHandler := http.FileServer(getFileSystem(false, "btns"))
+	cssHandler := http.FileServer(getFileSystem(false, "css"))
+	devicesHandler := http.FileServer(getFileSystem(false, "devices"))
+	faviconsHandler := http.FileServer(getFileSystem(false, "favicons"))
+	jsHandler := http.FileServer(getFileSystem(false, "js"))
+
+	e.GET("/btns/*", echo.WrapHandler(http.StripPrefix("/btns/", btnsHandler)))
+	e.GET("/css/*", echo.WrapHandler(http.StripPrefix("/css/", cssHandler)))
+	e.GET("/devices/*", echo.WrapHandler(http.StripPrefix("/devices/", devicesHandler)))
+	e.GET("/favicons/*", echo.WrapHandler(http.StripPrefix("/favicons/", faviconsHandler)))
+	e.GET("/js/*", echo.WrapHandler(http.StripPrefix("/js/", jsHandler)))
 
 	//初始化模版引擎
 	t := &Template{
-		templates: template.Must(template.New("").ParseFS(f, "assets/*.tmpl")),
+		templates: template.Must(template.New("").ParseFS(assets, "assets/views/*.tmpl")),
 	}
 
 	//向echo实例注册模版引擎
 	e.Renderer = t
 
 	// 路由
-	e.GET("/", View)
+	e.GET("/", Index)
 	e.GET("/login", Login)
 	e.POST("/api/*", API)
 
 	// 启动服务
 	e.HideBanner = true
-	fmt.Println("⇨ Pi Dashboard Go v" + VERSION)
+	fmt.Println("⇨ Pi Dashboard Go v" + config.VERSION)
 	e.Logger.Fatal(e.Start(port))
 }
 
-func View(c echo.Context) error {
+func Index(c echo.Context) error {
 	username, _ := getNowUsernameAndPassword()
 
-	sess, _ := session.Get(SessionName, c)
+	sess, _ := session.Get(config.SessionName, c)
 	//通过sess.Values读取会话数据
 	userName, _ := sess.Values["id"]
 	isLogin, _ := sess.Values["isLogin"]
@@ -103,19 +115,19 @@ func View(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/login")
 	}
 
-	device := Device()
-	device["version"] = VERSION
-	device["site_title"] = Title
-	device["interval"] = Interval
+	device := device.Info()
+	device["version"] = config.VERSION
+	device["site_title"] = config.Title
+	device["interval"] = config.Interval
 	device["go_version"] = runtime.Version()
 
-	return c.Render(http.StatusOK, "view.tmpl", device)
+	return c.Render(http.StatusOK, "index.tmpl", device)
 }
 
 func Login(c echo.Context) error {
 	username, _ := getNowUsernameAndPassword()
 
-	sess, _ := session.Get(SessionName, c)
+	sess, _ := session.Get(config.SessionName, c)
 	//通过sess.Values读取会话数据
 	userName, _ := sess.Values["id"]
 	isLogin, _ := sess.Values["isLogin"]
@@ -124,11 +136,13 @@ func Login(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 
+	tempDevice := device.Info()
 	device := make(map[string]string)
-	device["version"] = VERSION
-	device["site_title"] = Title
+	device["version"] = config.VERSION
+	device["site_title"] = config.Title
 	device["go_version"] = runtime.Version()
-	device["device_photo"] = Device()["device_photo"]
+	device["device_photo"] = tempDevice["device_photo"]
+	device["favicon"] = tempDevice["favicon"]
 
 	return c.Render(http.StatusOK, "login.tmpl", device)
 }
@@ -139,7 +153,7 @@ func API(c echo.Context) error {
 	case method == "login":
 		username, password := getNowUsernameAndPassword()
 
-		sess, _ := session.Get(SessionName, c)
+		sess, _ := session.Get(config.SessionName, c)
 		//通过sess.Values读取会话数据
 		userName, _ := sess.Values["id"]
 		isLogin, _ := sess.Values["isLogin"]
@@ -164,9 +178,9 @@ func API(c echo.Context) error {
 		}
 
 		if loginUsername == username && loginPassword == password {
-			maxAge, _ := strconv.Atoi(SessionMaxAge)
+			maxAge, _ := strconv.Atoi(config.SessionMaxAge)
 
-			sess, _ := session.Get(SessionName, c)
+			sess, _ := session.Get(config.SessionName, c)
 			sess.Options = &sessions.Options{
 				Path:     "/",            //所有页面都可以访问会话数据
 				MaxAge:   86400 * maxAge, //会话有效期，单位秒
@@ -191,7 +205,7 @@ func API(c echo.Context) error {
 		}
 
 	case method == "logout":
-		sess, _ := session.Get(SessionName, c)
+		sess, _ := session.Get(config.SessionName, c)
 		sess.Options = &sessions.Options{
 			Path:     "/",
 			MaxAge:   -1,
@@ -210,7 +224,7 @@ func API(c echo.Context) error {
 	case method == "device":
 		username, _ := getNowUsernameAndPassword()
 
-		sess, _ := session.Get(SessionName, c)
+		sess, _ := session.Get(config.SessionName, c)
 		//通过sess.Values读取会话数据
 		userName, _ := sess.Values["id"]
 		isLogin, _ := sess.Values["isLogin"]
@@ -222,10 +236,10 @@ func API(c echo.Context) error {
 			return c.JSON(http.StatusUnauthorized, status)
 		}
 
-		device := Device()
-		device["version"] = VERSION
-		device["site_title"] = Title
-		device["interval"] = Interval
+		device := device.Info()
+		device["version"] = config.VERSION
+		device["site_title"] = config.Title
+		device["interval"] = config.Interval
 		device["go_version"] = runtime.Version()
 
 		return c.JSON(http.StatusOK, device)
@@ -233,7 +247,7 @@ func API(c echo.Context) error {
 	case method == "operation":
 		username, _ := getNowUsernameAndPassword()
 
-		sess, _ := session.Get(SessionName, c)
+		sess, _ := session.Get(config.SessionName, c)
 		//通过sess.Values读取会话数据
 		userName, _ := sess.Values["id"]
 		isLogin, _ := sess.Values["isLogin"]
@@ -251,20 +265,20 @@ func API(c echo.Context) error {
 
 		switch operation := c.QueryParam("action"); {
 		case operation == "reboot":
-			go Popen("reboot")
+			go device.Popen("reboot")
 			return c.JSON(http.StatusOK, status)
 		case operation == "shutdown":
-			go Popen("shutdown -h now")
+			go device.Popen("shutdown -h now")
 			return c.JSON(http.StatusOK, status)
 		case operation == "dropcaches":
-			go Popen("echo 3 > /proc/sys/vm/drop_caches")
+			go device.Popen("echo 3 > /proc/sys/vm/drop_caches")
 			return c.JSON(http.StatusOK, status)
 		case operation == "checknewversion":
 			nowVersion, _ := getLatestVersionFromGitHub()
 			result := make(map[string]string)
-			if nowVersion > VERSION {
+			if nowVersion > config.VERSION {
 				result["new_version"] = nowVersion
-				result["new_version_url"] = PROJECT + "/releases/tag/v" + nowVersion
+				result["new_version_url"] = config.PROJECT + "/releases/tag/v" + nowVersion
 			} else {
 				result["new_version"] = ""
 				result["new_version_url"] = ""
@@ -283,9 +297,9 @@ func API(c echo.Context) error {
 }
 
 func getNowUsernameAndPassword() (username, password string) {
-	username = USERNAME
-	password = PASSWORD
-	auth := strings.Split(Auth, ":")
+	username = config.USERNAME
+	password = config.PASSWORD
+	auth := strings.Split(config.Auth, ":")
 	if len(auth) == 2 {
 		username = auth[0]
 		password = auth[1]
@@ -294,14 +308,16 @@ func getNowUsernameAndPassword() (username, password string) {
 	return username, password
 }
 
-func getFileSystem(useOS bool) http.FileSystem {
+func getFileSystem(useOS bool, dir string) http.FileSystem {
+	assetsDir := "assets/"
+
 	if useOS {
-		// fmt.Println("using live mode.")
-		return http.FS(os.DirFS("assets"))
+		// using live mode.
+		return http.FS(os.DirFS(assetsDir + dir))
 	}
 
-	// fmt.Println("using embed mode.")
-	fsys, err := fs.Sub(f, "assets")
+	// using embed mode.
+	fsys, err := fs.Sub(assets, assetsDir+dir)
 	if err != nil {
 		panic(err)
 	}

@@ -2,10 +2,10 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-13
-// @Version: 1.3.2
+// @Last modification: 2021-08-14
+// @Version: 1.3.3
 
-package main
+package device
 
 import (
 	"errors"
@@ -16,6 +16,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/plutobell/pi-dashboard-go/config"
 )
 
 //Popen 函数用于执行系统命令
@@ -51,7 +53,7 @@ func Popen(command string) (string, error) {
 }
 
 //Device 函数获取设备信息
-func Device() map[string]string {
+func Info() map[string]string {
 	//piCpuModelInfo Raspberry Pi CPU型号信息
 	piCpuModelInfo := map[string]string{
 		"Raspberry Pi 4 Model B":  "BCM2711",
@@ -95,9 +97,9 @@ func Device() map[string]string {
 		"memory_cached":    "cat /proc/meminfo | grep -w Cached: | awk '{ print $2}'",
 		"swap_total":       "cat /proc/meminfo | grep SwapTotal: | awk '{ print $2}'",
 		"swap_free":        "cat /proc/meminfo | grep SwapFree: | awk '{ print $2}'",
-		"disk":             "df " + Disk + " | awk 'NR==2{print $3,$4}'",
+		"disk":             "df " + config.Disk + " | awk 'NR==2{print $3,$4}'",
 		"net_status_lo":    "cat /proc/net/dev | grep lo: | awk '{ print $2,$3,$10,$11}'",
-		"net_status":       "cat /proc/net/dev | grep " + Net + ": | awk '{ print $2,$3,$10,$11}'",
+		"net_status":       "cat /proc/net/dev | grep " + config.Net + ": | awk '{ print $2,$3,$10,$11}'",
 	}
 
 	arch := runtime.GOARCH
@@ -156,9 +158,11 @@ func Device() map[string]string {
 		}
 	}
 	if strings.Contains(strings.ToLower(device["model"]), "raspberry") {
-		device["device_photo"] = "raspberry.png"
+		device["device_photo"] = "raspberrypi.png"
+		device["favicon"] = "raspberrypi.ico"
 	} else {
 		device["device_photo"] = "linux.png"
+		device["favicon"] = "linux.ico"
 	}
 
 	device["login_user_count"] = strings.Split(device["login_user_count"], "=")[1]
@@ -209,7 +213,7 @@ func Device() map[string]string {
 	device["disk_used"] = diskSlice[0]
 	device["disk_free"] = diskSlice[1]
 	delete(device, "disk")
-	device["disk_name"] = strings.ToUpper(Disk)
+	device["disk_name"] = strings.ToUpper(config.Disk)
 	diskUsed, _ := strconv.ParseFloat(device["disk_used"], 64)
 	diskFree, _ := strconv.ParseFloat(device["disk_free"], 64)
 	device["disk_total"] = strconv.FormatFloat((diskFree+diskUsed)/1024/1024, 'f', 1, 64)
@@ -217,7 +221,7 @@ func Device() map[string]string {
 	device["disk_used"] = strconv.FormatFloat(diskUsed/1024/1024, 'f', 1, 64)
 	device["disk_free"] = strconv.FormatFloat(diskFree/1024/1024, 'f', 1, 64)
 
-	device["net_dev_name"] = Net
+	device["net_dev_name"] = config.Net
 	netStatus := strings.Split(device["net_status"], " ")
 	device["net_status_in_data"] = netStatus[0]
 	device["net_status_in_package"] = netStatus[1]
