@@ -10,7 +10,7 @@ OUTPUT = build
 GOOS = linux
 OS_NAME = $(shell uname -o)
 
-build: clean vet main.go server.go device.go  device_test.go go.mod go.sum
+build: clean vet main.go server device config go.mod go.sum
 	@echo "-> Building"
 
 	@echo "-> 1 Building the "${PROGRAM}_${GOOS}_armv5_32
