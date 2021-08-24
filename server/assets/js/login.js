@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-24
-// @Version: 1.4.0
+// @Version: 1.4.1
 
 $("form").keyup(function(event){
     if(event.keyCode == 13){

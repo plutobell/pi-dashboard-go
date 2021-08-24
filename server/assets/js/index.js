@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-24
-// @Version: 1.4.0
+// @Version: 1.4.1
 
 var new_version = ""
 var new_version_notes = ""
@@ -523,18 +523,22 @@ $("#reboot").click(function(){
     $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=reboot', function(data){
         if (data.status == true) {
-            showModalBox("Reboot", "OK")
+            showModalBox("Reboot Device", "OK")
             $("#loading").show();
             unScroll();
             $("#reboot").css("pointer-events", "auto");
+        } else if (data.status == "NotRootUser") {
+            showModalBox("Reboot Device", '"Reboot Device" requires running Pi Dashboard Go as root user')
+            unScroll();
+            $("#reboot").css("pointer-events", "auto");
         } else {
-            showModalBox("Reboot", "Fail");
+            showModalBox("Reboot Device", "Unknown Error");
             $("#loading").show();
             unScroll();
             $("#reboot").css("pointer-events", "auto");
         }
     }).fail(function() {
-        showModalBox("Reboot", "Fail");
+        showModalBox("Reboot Device", "Request Error");
         $("#loading").show();
         unScroll();
         $("#reboot").css("pointer-events", "auto");
@@ -546,18 +550,22 @@ $("#shutdown").click(function(){
     $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=shutdown', function(data){
         if (data.status == true) {
-            showModalBox("Shutdown", "OK");
+            showModalBox("Shutdown Device", "OK");
             $("#loading").show();
             unScroll();
             $("#shutdown").css("pointer-events", "auto");
+        } else if (data.status == "NotRootUser") {
+            showModalBox("Shutdown Device", '"Shutdown Device" requires running Pi Dashboard Go as root user')
+            unScroll();
+            $("#shutdown").css("pointer-events", "auto");
         } else {
-            showModalBox("Shutdown", "Fail");
+            showModalBox("Shutdown Device", "Unknown Error");
             $("#loading").show();
             unScroll();
             $("#shutdown").css("pointer-events", "auto");
         }
     }).fail(function() {
-        showModalBox("Shutdown", "Fail");
+        showModalBox("Shutdown Device", "Request Error");
         $("#loading").show();
         unScroll();
         $("#shutdown").css("pointer-events", "auto");
@@ -573,14 +581,19 @@ $("#dropcaches").click(function(){
             // $("#loading").show();
             // unScroll();
             $("#dropcaches").css("pointer-events", "auto");
+        } else if (data.status == "NotRootUser") {
+            showModalBox("Drop Caches", '"Drop Caches" requires running Pi Dashboard Go as root user')
+            // $("#loading").show();
+            // unScroll();
+            $("#dropcaches").css("pointer-events", "auto");
         } else {
-            showModalBox("Drop Caches", "Fail");
+            showModalBox("Drop Caches", "Unknown Error");
             // $("#loading").show();
             // unScroll();
             $("#dropcaches").css("pointer-events", "auto");
         }
     }).fail(function() {
-        showModalBox("Drop Caches", "Fail");
+        showModalBox("Drop Caches", "Request Error");
         // $("#loading").show();
         // unScroll();
         $("#dropcaches").css("pointer-events", "auto");

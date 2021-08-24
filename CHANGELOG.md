@@ -2,6 +2,9 @@
 
 **2021-08-24**
 
+* v1.4.1 : 
+  * Added operation functions permission detection
+  * Added a prompt to the console for non-root users to run
 * v1.4.0 : 
   * Adjusted the front-end page display style
   * Adjusted static file path structure

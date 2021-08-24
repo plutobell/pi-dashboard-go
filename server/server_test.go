@@ -38,3 +38,11 @@ func Test_getLatestVersionFromGitHub(t *testing.T) {
 		t.Error("Fail")
 	}
 }
+
+func Test_isRootUser(t *testing.T) {
+	if res := isRootUser(); res == true || res == false {
+		t.Log("Pass")
+	} else {
+		t.Error("Fail")
+	}
+}

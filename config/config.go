@@ -3,9 +3,11 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-24
-// @Version: 1.4.0
+// @Version: 1.4.1
 
 package config
+
+import "os/user"
 
 const (
 	//PROJECT 项目地址
@@ -13,7 +15,7 @@ const (
 	//AUTHOR 作者信息
 	AUTHOR string = "github:plutobell"
 	//VERSION 版本信息
-	VERSION string = "1.4.0"
+	VERSION string = "1.4.1"
 	//USERNAME 默认用户
 	USERNAME string = "pi"
 	//PASSWORD 默认密码
@@ -43,4 +45,6 @@ var (
 	SessionName string
 	// FileName 当前文件名
 	FileName string
+	// LinuxUserInfo 当前Linux用户信息
+	LinuxUserInfo *user.User
 )

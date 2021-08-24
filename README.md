@@ -38,7 +38,7 @@ chmod +x pi-dashboard-go
 **Pi Dashboard Go** can be configured via command line parameters：
 
 ```bash
-Pi Dashboard Go version: v1.4.0
+Pi Dashboard Go version: v1.4.1
 Project address: https://github.com/plutobell/pi-dashboard-go
 
 Usage: Pi Dashboard Go [-auth USR:PSW] [-disk Paths] [-help]

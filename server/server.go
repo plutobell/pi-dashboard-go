@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-24
-// @Version: 1.4.0
+// @Version: 1.4.1
 
 package server
 
@@ -100,6 +100,9 @@ func Run() {
 	// 启动服务
 	e.HideBanner = true
 	fmt.Println("⇨ Pi Dashboard Go v" + config.VERSION)
+	if isRootUser() != true {
+		fmt.Println("⇨ Some functions are unavailable to non-root users")
+	}
 	e.Logger.Fatal(e.Start(port))
 }
 
@@ -231,7 +234,7 @@ func API(c echo.Context) error {
 
 		if userName != username || isLogin != true {
 			status := map[string]string{
-				"result": "Unauthorized",
+				"status": "Unauthorized",
 			}
 			return c.JSON(http.StatusUnauthorized, status)
 		}
@@ -254,26 +257,36 @@ func API(c echo.Context) error {
 
 		if userName != username || isLogin != true {
 			status := map[string]string{
-				"result": "Unauthorized",
+				"status": "Unauthorized",
 			}
 			return c.JSON(http.StatusUnauthorized, status)
+		}
+
+		operation := c.QueryParam("action")
+
+		if operation != "checknewversion" && isRootUser() != true {
+			status := map[string]string{
+				"status": "NotRootUser",
+			}
+
+			return c.JSON(http.StatusOK, status)
 		}
 
 		status := map[string]bool{
 			"status": true,
 		}
 
-		switch operation := c.QueryParam("action"); {
-		case operation == "reboot":
+		switch operation {
+		case "reboot":
 			go device.Popen("reboot")
 			return c.JSON(http.StatusOK, status)
-		case operation == "shutdown":
+		case "shutdown":
 			go device.Popen("shutdown -h now")
 			return c.JSON(http.StatusOK, status)
-		case operation == "dropcaches":
+		case "dropcaches":
 			go device.Popen("echo 3 > /proc/sys/vm/drop_caches")
 			return c.JSON(http.StatusOK, status)
-		case operation == "checknewversion":
+		case "checknewversion":
 			nowVersion, releaseNotes, _ := getLatestVersionFromGitHub()
 			result := make(map[string]string)
 			if nowVersion > config.VERSION {
@@ -382,4 +395,14 @@ func getLatestVersionFromGitHub() (
 	}
 
 	return nowVersion, releaseNotes, downloadURL
+}
+
+func isRootUser() bool {
+	if config.LinuxUserInfo.Gid == "0" &&
+		config.LinuxUserInfo.Uid == "0" &&
+		config.LinuxUserInfo.Username == "root" {
+		return true
+	}
+
+	return false
 }

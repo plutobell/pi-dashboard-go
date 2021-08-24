@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-24
-// @Version: 1.4.0
+// @Version: 1.4.1
 
 package main
 
@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -36,6 +37,7 @@ func init() {
 
 	config.SessionName = "logged_in"
 	config.FileName = filepath.Base(os.Args[0])
+	config.LinuxUserInfo, _ = user.Current()
 
 	flag.Usage = usage
 }

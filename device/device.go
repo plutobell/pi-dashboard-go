@@ -3,7 +3,7 @@
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
 // @Last modification: 2021-08-24
-// @Version: 1.4.0
+// @Version: 1.4.1
 
 package device
 
@@ -76,7 +76,6 @@ func Info() map[string]string {
 		"uptime":           "cat /proc/uptime | awk '{ print $1}'",
 		"login_user_count": "who -q | awk 'NR==2{print $2}'",
 		"load_average":     "cat /proc/loadavg | awk '{print $1,$2,$3,$4}'",
-		"current_user":     "whoami",
 		"hostname":         "cat /etc/hostname",
 		"os":               "uname -o",
 		"system":           "cat /etc/os-release | grep PRETTY_NAME=",
@@ -122,6 +121,8 @@ func Info() map[string]string {
 		res = strings.Replace(res, "\n", "", -1)
 		device[k] = res
 	}
+
+	device["current_user"] = config.LinuxUserInfo.Username
 
 	cpuTemperature, _ := strconv.Atoi(device["cpu_temperature"])
 	device["uptime"] = resolveTime(device["uptime"])
