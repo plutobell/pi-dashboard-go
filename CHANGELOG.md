@@ -1,5 +1,16 @@
 # Changelog #
 
+**2021-08-24**
+
+* v1.4.0 : 
+  * Adjusted the front-end page display style
+  * Adjusted static file path structure
+  * Added page loading time statistics
+  * Added pop-up window for new version release notes display
+  * Some other optimizations
+  * Use Go v1.17
+  * Updated dependencies
+
 **2021-08-14**
 
 * v1.3.3 : 

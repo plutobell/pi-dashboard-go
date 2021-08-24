@@ -1,0 +1,143 @@
+/*
+@Program : Pi Dashboard Go (https://github.com/plutobell/pi-dashboard-go)
+@Description: Golang implementation of pi-dashboard
+@Author: github.com/plutobell
+@Creation: 2020-08-01
+@Last modification: 2021-08-24
+@Version: 1.4.0
+*/
+
+::-webkit-scrollbar {
+    width: 6.5px;
+    height: 6.5px;
+}
+::-webkit-scrollbar-track {
+    border-radius: 3.5px;
+    background: rgba(0,0,0,0.06);
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 3.5px;
+    background: rgba(0,0,0,0.12);
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+:root {
+    --label-color: #979d9e;
+    --navbar-color: #555555;
+    --cache-color: #D9E4DD;
+    --cpu-memory-title-color: #CDC9C3;
+    --temperature-color: #FBF7F0;
+    --ip-color: #D9E4DD;
+    --time-color: #CDC9C3;
+    --uptime-color: #FBF7F0;
+    --cpu-color: #D9E4DD;
+    --memory-color: #D9E4DD;
+    --real-memory-color: #D9E4DD;
+    --swap-color: #D9E4DD;
+    --disk-color: #CDC9C3;
+    --net-in-color: #D9E4DD;
+    --net-out-color: #CDC9C3;
+    --box-bg-color: #eaebe9; /* #E8EAE6 */
+    --backdrop-color: #363636;
+
+    --box-radius: 15px;
+}
+
+.label {color: var(--label-color); font-size: 75%; font-weight: bolder;}
+
+body{
+    -moz-user-select:none;
+    -webkit-user-select:none;
+    -ms-user-select:none;
+    -khtml-user-select:none;
+    user-select:none;
+    margin-top: 70px;
+}
+
+
+.navbar, .dropdown-menu, .modal-content,
+.tooltip-arrow, .tooltip-inner, .tooltip, .arrow::before {
+    filter: alpha(opacity=90) !important;
+    opacity: 0.9 !important;
+    border: 0 !important;
+    box-shadow: 0 !important;
+}
+.navbar-toggler {
+    color: #616161 !important;
+    border-color: var(--navbar-color) !important;
+    padding: 0 10px 0 10px !important;
+    border-radius: var(--box-radius) !important;
+}
+.dropdown-menu {
+    border-radius: var(--box-radius) !important;
+    background-color: var(--navbar-color) !important;
+}
+.dropdown-item:active {
+    border-radius: var(--box-radius) !important;
+    background-color:#616161 !important;
+}
+.dropdown-item:hover {
+    border-radius: var(--box-radius) !important;
+}
+
+.tooltip-inner {
+    border-radius: var(--box-radius);
+    padding: 5px 10px 5px 10px;
+    background-color: var(--navbar-color) !important;
+}
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--navbar-color);
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--navbar-color);
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: var(--navbar-color);
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: var(--navbar-color);
+}
+@media only screen
+and (max-device-width : 768px) {
+    .tooltip {
+        display: none !important;
+    }
+}
+
+.modal-header, .modal-body, .modal-footer {
+    border: 0 !important;
+}
+.modal-backdrop {
+    background-color: var(--backdrop-color) !important;
+}
+.modal-open {
+    overflow-y: hidden !important;
+}
+
+.btn-dark,
+.btn-dark:hover,
+.btn-dark:active,
+.btn-dark:visited,
+.btn-dark:focus {
+    border-radius: var(--box-radius) !important;
+
+    background-color: var(--navbar-color) !important;
+    border-color: var(--navbar-color) !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+    border: 1px solid var(--navbar-color) !important;
+
+    filter: alpha(opacity=90) !important;
+    opacity: 0.9 !important;
+    border: 0 !important;
+    box-shadow: 0 !important;
+}
+.btn-close:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}

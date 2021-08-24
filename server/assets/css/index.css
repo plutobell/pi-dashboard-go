@@ -1,0 +1,96 @@
+/*
+@Program : Pi Dashboard Go (https://github.com/plutobell/pi-dashboard-go)
+@Description: Golang implementation of pi-dashboard
+@Author: github.com/plutobell
+@Creation: 2020-08-01
+@Last modification: 2021-08-24
+@Version: 1.4.0
+*/
+
+#loading{
+    background: var(--backdrop-color);
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 2000;
+    filter: alpha(opacity=70);
+    opacity: 0.7 !important;
+}
+
+.spinner {
+width: 50px;
+height: 60px;
+text-align: center;
+font-size: 10px;
+position: absolute;
+left: 50%;
+top: 50%;
+transform: translate(-50%,-50%);
+}
+
+.spinner > div {
+background-color: #fefefd;
+height: 100%;
+width: 6px;
+border-radius: var(--box-radius);
+display: inline-block;
+
+-webkit-animation: stretchdelay 1.2s infinite ease-in-out;
+animation: stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner .rect2 {
+-webkit-animation-delay: -1.1s;
+animation-delay: -1.1s;
+}
+
+.spinner .rect3 {
+-webkit-animation-delay: -1.0s;
+animation-delay: -1.0s;
+}
+
+.spinner .rect4 {
+-webkit-animation-delay: -0.9s;
+animation-delay: -0.9s;
+}
+
+.spinner .rect5 {
+-webkit-animation-delay: -0.8s;
+animation-delay: -0.8s;
+}
+
+@-webkit-keyframes stretchdelay {
+0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
+20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes stretchdelay {
+0%, 40%, 100% {
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+}  20% {
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+}
+}
+
+#command-btns{
+    list-style-type:none;
+    display: block;
+    margin-top: 0 auto;
+    margin-top: 10px;
+    padding: 0;
+}
+#command-btns li{
+    display: inline;
+    white-space:nowrap;
+    margin: auto 7px;
+    cursor: pointer;
+}
+#command-btns li img:hover{
+    border: 1px solid #e5e6e4;
+    border-radius: 90px;
+}

@@ -2,27 +2,23 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-14
-// @Version: 1.3.3
+// @Last modification: 2021-08-24
+// @Version: 1.4.0
 
-window.oncontextmenu=function(){return false;}
-window.onkeydown = window.onkeyup = window.onkeypress = function (event) {
-    if (event.keyCode === 123) {
-        event.preventDefault();
-        window.event.returnValue = false;
-    }
-}
-window.addEventListener('keydown', function (event) {
-    if (event.ctrlKey) {
-        event.preventDefault();
-    }
-})
+var new_version = ""
+var new_version_notes = ""
+var new_version_url = ""
 
+initTooltips();
 unScroll();
 
 $(document).ready(function() {
+    var net_in_color = $(":root").css("--net-in-color");
+    var net_out_color = $(":root").css("--net-out-color");
 
+    $("#year").text(new Date().getFullYear());
     $("#loading").hide();
+    $('#ModalBox').modal('hide');
     removeUnScroll();
 
     Highcharts.setOptions({
@@ -67,9 +63,9 @@ $(document).ready(function() {
         // the value axis
         yAxis: {
             stops: [
-                [0.1, '#02c39a'],
-                [0.5, '#dddf00'],
-                [0.9, '#db3a34']
+                [0.1, '#D9E4DD'],
+                [0.5, '#CDC9C3'],
+                [0.9, '#919191']
             ],
             lineWidth: 0,
             minorTickInterval: null,
@@ -264,7 +260,7 @@ $(document).ready(function() {
             {
                 name: 'IN',
                 data: [0],
-                color: '#3a86ff',
+                color: net_in_color,
                 marker: {
                     enabled: false
                 }
@@ -272,7 +268,7 @@ $(document).ready(function() {
             {
                 name: 'OUT',
                 data: [0],
-                color: '#16db93',
+                color: net_out_color,
                 marker: {
                     enabled: false
                 }
@@ -307,7 +303,7 @@ $(document).ready(function() {
             {
                 name: 'IN',
                 data: [0],
-                color: '#3a86ff',
+                color: net_in_color,
                 marker: {
                     enabled: false
                 }
@@ -315,7 +311,7 @@ $(document).ready(function() {
             {
                 name: 'OUT',
                 data: [0],
-                color: '#16db93',
+                color: net_out_color,
                 marker: {
                     enabled: false
                 }
@@ -326,17 +322,23 @@ $(document).ready(function() {
     net_Out2 = [0,0,0,0,0,0,0,0,0,0];
 
     setInterval(function() {
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth();
+        var day = date.getDate();
+
         $.ajaxSetup(csrfAddToAjaxHeader());
         $.post('api/device', function(data){
             $("#loading").hide();
             removeUnScroll();
 
             $("#login-users").text(data.login_user_count);
+            $("#hostip").text(data.ip);
             $("#hostname").text(data.hostname);
             $("#uname").text(data.uname);
             $("#system").text(data.system);
-            $("#time").text(data.now_time_hms);
-            $("#date").text(data.now_time_ymd);
+            // $("#time").text(data.now_time_hms);
+            // $("#date").text(data.now_time_ymd);
             $("#uptime").text(data.uptime);
             $("#cpu-temp").text(data.cpu_temperature);
             $("#cpu-freq").text(data.cpu_freq);
@@ -370,6 +372,11 @@ $(document).ready(function() {
             $("#net-interface-2-total-in").text(data.net_status_in_data_format);
             $("#net-interface-2-total-out").text(data.net_status_out_data_format);
 
+            $("#version").text("v" + data.version);
+            $("#version").attr('data-bs-original-title', "Compiled with " + data.go_version);
+
+            // $("#year").text(new Date().getFullYear());
+
             if(window.dashboard != null)
             {
                 window.dashboard_old = window.dashboard;
@@ -378,6 +385,7 @@ $(document).ready(function() {
 
         }).fail(function() {
                 $("#loading").show();
+                $('#ModalBox').modal('hide');
                 unScroll();
             });
 
@@ -443,8 +451,37 @@ $(document).ready(function() {
         }
 
     }, (parseInt($("#interval").text()) * 1000) );
-}
-)
+});
+
+// Loading Consumption Time
+$(window).on('load', function() {
+    var endTime = new Date().getTime();
+    loading_time = endTime - startTime
+    if (loading_time < 1000) {
+        $("#loading-time").attr('data-bs-original-title', "Loading time: " + loading_time + "ms");
+    } else {
+        $("#loading-time").attr('data-bs-original-title', "Loading time: " + (loading_time / 1000).toFixed(3) + "s");
+    };
+});
+
+$(document).ready(function() {
+    setInterval(function() {
+        var nowDate = new Date();
+        var year = nowDate.getFullYear();
+        var month = nowDate.getMonth() + 1 < 10 ? "0" + (nowDate.getMonth() + 1) : nowDate.getMonth() + 1;
+        var day = nowDate.getDate() < 10 ? "0" + nowDate.getDate() : nowDate.getDate();
+        var hour = nowDate.getHours()< 10 ? "0" + nowDate.getHours() : nowDate.getHours();
+        var minute = nowDate.getMinutes()< 10 ? "0" + nowDate.getMinutes() : nowDate.getMinutes();
+        var second = nowDate.getSeconds()< 10 ? "0" + nowDate.getSeconds() : nowDate.getSeconds();
+
+        var hms = hour + ":" + minute + ":" + second
+        var ymd = year + "-" + month + "-" + day
+
+        $("#time").text(hms);
+        $("#date").text(ymd);
+        $("#year").text(year);
+    }, (500) );
+});
 
 function unScroll() {
     var top = $(document).scrollTop();
@@ -465,64 +502,88 @@ function removeUnScroll() {
 
 
 $("#logout").click(function(){
-    $("#logout").attr("disabled", true);
+    $("#logout").css("pointer-events", "none");
     $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/logout', function(result){
         if (result.status == true) {
-            $("#logout").attr("disabled", false);
+            $("#logout").css("pointer-events", "auto");
             $(window).attr('location','/login');
         } else {
-            $("#logout").attr("disabled", false);
-            window.alert("Sign out failed");
+            $("#logout").css("pointer-events", "auto");
+            showModalBox("Sign Out", "Sign out failed");
         }
     }).fail(function() {
-        $("#login").attr("disabled", false);
-        window.alert("Sign out failed");
+        $("#logout").css("pointer-events", "auto");
+        showModalBox("Sign Out", "Sign out failed");
     });
 });
 
 $("#reboot").click(function(){
+    $("#reboot").css("pointer-events", "none");
     $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=reboot', function(data){
         if (data.status == true) {
-            window.alert("OK")
+            showModalBox("Reboot", "OK")
             $("#loading").show();
             unScroll();
+            $("#reboot").css("pointer-events", "auto");
+        } else {
+            showModalBox("Reboot", "Fail");
+            $("#loading").show();
+            unScroll();
+            $("#reboot").css("pointer-events", "auto");
         }
     }).fail(function() {
-        window.alert("Fail");
+        showModalBox("Reboot", "Fail");
         $("#loading").show();
         unScroll();
+        $("#reboot").css("pointer-events", "auto");
     });
 });
 
 $("#shutdown").click(function(){
+    $("#shutdown").css("pointer-events", "none");
     $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=shutdown', function(data){
         if (data.status == true) {
-            window.alert("OK");
+            showModalBox("Shutdown", "OK");
             $("#loading").show();
             unScroll();
+            $("#shutdown").css("pointer-events", "auto");
+        } else {
+            showModalBox("Shutdown", "Fail");
+            $("#loading").show();
+            unScroll();
+            $("#shutdown").css("pointer-events", "auto");
         }
     }).fail(function() {
-        window.alert("Fail");
+        showModalBox("Shutdown", "Fail");
         $("#loading").show();
         unScroll();
+        $("#shutdown").css("pointer-events", "auto");
     });
 });
 
 $("#dropcaches").click(function(){
+    $("#dropcaches").css("pointer-events", "none");
     $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=dropcaches', function(data){ //$.getJSON()
         if (data.status == true) {
-            window.alert("OK");
+            showModalBox("Drop Caches", "OK");
             // $("#loading").show();
             // unScroll();
+            $("#dropcaches").css("pointer-events", "auto");
+        } else {
+            showModalBox("Drop Caches", "Fail");
+            // $("#loading").show();
+            // unScroll();
+            $("#dropcaches").css("pointer-events", "auto");
         }
     }).fail(function() {
-        window.alert("Fail");
+        showModalBox("Drop Caches", "Fail");
         // $("#loading").show();
         // unScroll();
+        $("#dropcaches").css("pointer-events", "auto");
     });
 });
 
@@ -531,88 +592,69 @@ $(document).ready(function(){
     $.ajaxSetup(csrfAddToAjaxHeader());
     $.post('/api/operation?action=checknewversion', function(data){
         if (data.new_version != "" && data.new_version_url != "") {
-            $("#new-url").attr("href", data.new_version_url);
-            $("#new-version").attr("title", "v" + data.new_version);
+            // $("#new-url").attr("href", data.new_version_url);
+            new_version = data.new_version
+            new_version_notes = data.new_version_notes
+            new_version_url = data.new_version_url
+
+            $('#new-box').attr('data-bs-original-title', "v" + data.new_version + " Available");
             $("#new-box").show(1000);
         } else {
+            new_version = ""
+            new_version_notes = ""
+            new_version_url = ""
+
             $("#new-box").hide(1000);
-            $("#new-url").attr("href", "javascript:void(0);");
-            $("#new-version").attr("title", "New Version");
+            // $("#new-url").attr("href", "javascript:void(0);");
+            $('#new-box').attr('data-bs-original-title', 'New Version');
         }
     }).fail(function() {
+        new_version = ""
+        new_version_notes = ""
+        new_version_url = ""
+
         $("#new-box").hide(1000);
-        $("#new-url").attr("href", "javascript:void(0);");
-        $("#new-version").attr("title", "New Version");
+        // $("#new-url").attr("href", "javascript:void(0);");
+        $('#new-box').attr('data-bs-original-title', 'New Version');
     });
 });
+$("#new-box").click(function(){
+    $("#new-box").css("pointer-events", "none");
+    $("#new-download").show();
 
-
-
-// Login Page
-$("form").keyup(function(event){
-    if(event.keyCode == 13){
-        $("#login-btn").trigger("click");
-    }
-});
-
-$("#login-btn").click(function(){
-    $("#login-btn").attr("disabled", true);
-    var username = $("#username").val();
-    var password = $("#password").val();
-    var json = {
-        "username": username,
-        "password": password,
-    };
-    if (username == "" || password == "") {
-        $("#login-tips").text("Username or password is empty")
-        $("#login-btn").attr("disabled", false);
-    } else {
-        $.ajaxSetup(csrfAddToAjaxHeader());
-        $.post('/api/login', JSON.stringify(json), function(result){
-            if (result.status == true) {
-                $("#login-tips").text("")
-                $(window).attr('location','/');
-            } else if (result.status == false) {
-                $("#login-tips").text("Wrong credentialss")
-                $("#login-btn").attr("disabled", false);
-            }
-        }).fail(function() {
-            $("#login-tips").text("Unknown error")
-            $("#login-btn").attr("disabled", false);
-        });
-    }
-
-});
-
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+    $('#ModalBox-Title').text("v" + new_version + " Available");
+    $("#ModalBox-Body").empty();
+    $("#ModalBox-Body").attr('style', 'text-align: left !important;');
+    var notes_array = new_version_notes.split("*");
+    $("#ModalBox-Body").append("<strong>Release Notes</strong>");
+    $("#ModalBox-Body").append("<ul></ul>");
+    for (var i = 0; i < notes_array.length; i++) {
+        if (notes_array[i] != "") {
+            insertHtml = "<li><small>" + $.trim(notes_array[i]) + "</small></li>"
+            $('#ModalBox-Body').find('ul').eq(0).append(insertHtml);
         }
     }
-    return cookieValue;
+
+    $('#ModalBox').modal('show');
+    $("#new-box").css("pointer-events", "auto");
+});
+$("#new-download").click(function(){
+    window.open(new_version_url, "_blank");
+});
+
+function showModalBox(title, body) {
+    $("#new-download").hide();
+    $('#ModalBox-Title').text(title);
+    $("#ModalBox-Body").empty();
+    $("#ModalBox-Body").attr('style', 'text-align: center !important;');
+    $('#ModalBox-Body').text(body);
+    $('#ModalBox').modal('show');
 }
 
-function csrfSafeMethod(method) {
-    // 这些HTTP方法不要求携带CSRF令牌。test()是js正则表达式方法，若模板匹配成功，则返回true
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+function initTooltips() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
 }
 
-function csrfAddToAjaxHeader() {
-    var csrftoken = getCookie('cf_sid');
-
-    return {
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-XSRF-TOKEN", csrftoken);
-            }
-        }
-    }
-}

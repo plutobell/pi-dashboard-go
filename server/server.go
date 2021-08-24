@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-14
-// @Version: 1.3.3
+// @Last modification: 2021-08-24
+// @Version: 1.4.0
 
 package server
 
@@ -274,13 +274,15 @@ func API(c echo.Context) error {
 			go device.Popen("echo 3 > /proc/sys/vm/drop_caches")
 			return c.JSON(http.StatusOK, status)
 		case operation == "checknewversion":
-			nowVersion, _ := getLatestVersionFromGitHub()
+			nowVersion, releaseNotes, _ := getLatestVersionFromGitHub()
 			result := make(map[string]string)
 			if nowVersion > config.VERSION {
 				result["new_version"] = nowVersion
+				result["new_version_notes"] = releaseNotes
 				result["new_version_url"] = config.PROJECT + "/releases/tag/v" + nowVersion
 			} else {
 				result["new_version"] = ""
+				result["new_version_notes"] = ""
 				result["new_version_url"] = ""
 			}
 
@@ -338,7 +340,9 @@ func getRandomString(len int) string {
 	return string(result)
 }
 
-func getLatestVersionFromGitHub() (nowVersion string, downloadURL []string) {
+func getLatestVersionFromGitHub() (
+	nowVersion string, releaseNotes string, downloadURL []string) {
+
 	url := "https://api.github.com/repos/plutobell/pi-dashboard-go/releases/latest"
 
 	resp, err := http.Get(url)
@@ -372,7 +376,10 @@ func getLatestVersionFromGitHub() (nowVersion string, downloadURL []string) {
 				}
 			}
 		}
+		if key == "body" {
+			releaseNotes = value.(string)
+		}
 	}
 
-	return nowVersion, downloadURL
+	return nowVersion, releaseNotes, downloadURL
 }

@@ -1,0 +1,23 @@
+/*
+@Program : Pi Dashboard Go (https://github.com/plutobell/pi-dashboard-go)
+@Description: Golang implementation of pi-dashboard
+@Author: github.com/plutobell
+@Creation: 2020-08-01
+@Last modification: 2021-08-24
+@Version: 1.4.0
+*/
+
+.box-radius {
+    border-radius: var(--box-radius);
+}
+#login-box {
+    width: 70%;
+    margin: 0 auto;
+    margin-top: 30%;
+}
+
+input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: 1px solid var(--navbar-color) !important;
+}

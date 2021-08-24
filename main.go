@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-14
-// @Version: 1.3.3
+// @Last modification: 2021-08-24
+// @Version: 1.4.0
 
 package main
 
@@ -48,7 +48,7 @@ func main() {
 		return
 	}
 	if config.Version {
-		fmt.Println("Pi Dashboard Go " + config.VERSION)
+		fmt.Println("Pi Dashboard Go v" + config.VERSION)
 		fmt.Println("Project address: " + config.PROJECT)
 		return
 	}
@@ -132,7 +132,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `Pi Dashboard Go version: %s
+	fmt.Fprintf(os.Stderr, `Pi Dashboard Go version: v%s
 Project address: %s
 
 Usage: %s [-auth USR:PSW] [-disk Paths] [-help]
