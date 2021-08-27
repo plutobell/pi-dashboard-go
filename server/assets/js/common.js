@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-24
-// @Version: 1.4.1
+// @Last modification: 2021-08-27
+// @Version: 1.5.0
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function (event) {
@@ -18,6 +18,60 @@ window.addEventListener('keydown', function (event) {
     }
 })
 
+$(document).ready(function() {
+    if(window.matchMedia('(prefers-color-scheme: dark)').matches){
+        $("#modal-close-btn").addClass("btn-close-white");
+        $("footer").eq(0).addClass("border-secondary");
+        if ($("#favicon").text() == "linux.ico") {
+            $("#device-photo").addClass("inverted");
+            $("#icon").attr("href", "favicons/linux_light.ico");
+            $("#shortcut-icon").attr("href", "favicons/linux_light.ico");
+        }
+    } else {
+        $("#modal-close-btn").removeClass("btn-close-white");
+        $("footer").eq(0).removeClass("border-secondary");
+        $("#device-photo").removeClass("inverted");
+        if ($("#favicon").text() == "linux.ico") {
+            $("#icon").attr("href", "favicons/linux.ico");
+            $("#shortcut-icon").attr("href", "favicons/linux.ico");
+        } else {
+            $("#icon").attr("href", "favicons/raspberrypi.ico");
+            $("#shortcut-icon").attr("href", "favicons/raspberrypi.ico");
+        }
+    }
+});
+
+let media = window.matchMedia('(prefers-color-scheme: dark)');
+let callback = (e) => {
+    let prefersDarkMode = e.matches;
+    if (prefersDarkMode) {
+        $("#modal-close-btn").addClass("btn-close-white");
+        $("footer").eq(0).addClass("border-secondary");
+        if ($("#favicon").text() == "linux.ico") {
+            $("#device-photo").addClass("inverted");
+            $("#icon").attr("href", "favicons/linux_light.ico");
+            $("#shortcut-icon").attr("href", "favicons/linux_light.ico");
+        }
+        $.getScript('js/index.js', function() {});
+    } else {
+        $("#modal-close-btn").removeClass("btn-close-white");
+        $("footer").eq(0).removeClass("border-secondary");
+        $("#device-photo").removeClass("inverted");
+        if ($("#favicon").text() == "linux.ico") {
+            $("#icon").attr("href", "favicons/linux.ico");
+            $("#shortcut-icon").attr("href", "favicons/linux.ico");
+        } else {
+            $("#icon").attr("href", "favicons/raspberrypi.ico");
+            $("#shortcut-icon").attr("href", "favicons/raspberrypi.ico");
+        }
+        $.getScript('js/index.js', function() {});
+    }
+};
+if (typeof media.addEventListener === 'function') {
+    media.addEventListener('change', callback);
+} else if (typeof media.addEventListener === 'function') {
+    media.addEventListener(callback);
+}
 
 function getCookie(name) {
     var cookieValue = null;

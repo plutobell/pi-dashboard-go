@@ -6,11 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#555555" />
-    <link rel="icon" href="favicons/{{.favicon}}" type="image/x-icon" />
-    <link rel="shortcut icon" href="favicons/{{.favicon}}" type="image/x-icon" />
+    <link id="icon" rel="icon" href="favicons/{{.favicon}}" type="image/x-icon" />
+    <link id="shortcut-icon" rel="shortcut icon" href="favicons/{{.favicon}}" type="image/x-icon" />
     <link href="css/bootstrap.min.css" rel="stylesheet" />
-    <link href="css/common.css" rel="stylesheet" />
     <link href="css/index.css" rel="stylesheet" />
+    <link href="css/common.css" rel="stylesheet" />
     <script src="js/jquery-3.6.0.min.js"></script>
     <script src="js/highcharts.js"></script>
     <script src="js/highcharts-more.js"></script>
@@ -66,18 +66,18 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-3">
-                <div style="text-align: center; padding: 20px 0;"><img alt="Device" src="devices/{{.device_photo}}" /></div>
+                <div style="text-align: center; padding: 20px 0;"><img id="device-photo" alt="Device" src="devices/{{.device_photo}}" /></div>
                 <div style="background-color: var(--box-bg-color); padding: 5px; border-radius:var(--box-radius);">
-                    <div class="text-center" style="margin:20px; border-radius:var(--box-radius);"><div id="pimodel" style="font-size: 90%; font-weight: bolder; text-shadow: 0 1px 0 #fff;">{{.model}}</div></div>
+                    <div class="text-center" style="margin:20px; border-radius:var(--box-radius);"><div id="pimodel" style="font-size: 90%; font-weight: bolder;">{{.model}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:var(--ip-color); border-radius:var(--box-radius);"><div class="label">IP</div><div id="hostip" style="font-size: 130%; font-weight: bolder;">{{.ip}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:var(--time-color); border-radius:var(--box-radius);"><div class="label">TIME</div><div id="time" style="font-size: 130%; font-weight: bolder;">{{.now_time_hms}}</div><div id="date">{{.now_time_ymd}}</div></div>
                     <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:var(--uptime-color); border-radius:var(--box-radius);"><div class="label">UPTIME</div><div id="uptime" style="font-size: 110%; font-weight: bolder;">{{.uptime}}</div></div>
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);"><div class="label">LOGIN USER(S)</div><div id="login-users" style="font-size: 110%; font-weight: bolder;">{{.login_user_count}}</div></div>
+                    <div class="text-center dark-bg" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);"><div class="label">LOGIN USER(S)</div><div id="login-users" style="font-size: 110%; font-weight: bolder;">{{.login_user_count}}</div></div>
                     <!-- <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);"><div class="label">USER</div><div id="user" style="font-size: 110%; font-weight: bolder;">{{.current_user}}</div></div> -->
                     <!-- <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);"><div class="label">OS</div><div id="os" style="font-size: 110%; font-weight: bolder;">{{.os}}</div></div> -->
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);"><div class="label">SYSTEM</div><div id="system" style="font-size: 110%; font-weight: bolder;">{{.system}}</div></div>
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);"><div class="label">HOSTNAME</div><div id="hostname" style="font-size: 100%; font-weight: bolder;">{{.hostname}}</div></div>
-                    <div class="text-center" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);">
+                    <div class="text-center dark-bg" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);"><div class="label">SYSTEM</div><div id="system" style="font-size: 110%; font-weight: bolder;">{{.system}}</div></div>
+                    <div class="text-center dark-bg" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);"><div class="label">HOSTNAME</div><div id="hostname" style="font-size: 100%; font-weight: bolder;">{{.hostname}}</div></div>
+                    <div class="text-center dark-bg" style="margin:20px; padding: 10px 0 10px 0; background-color:#ffffff; border-radius:var(--box-radius);">
                         <div class="label">OPERATION</div>
                         <div style="word-break:break-all; word-wrap:break-word; font-size: 75%; color: var(--label-color); padding: 0 10px;">
                             <ul id="command-btns">
@@ -315,7 +315,7 @@
             <div class="modal-content" style="border-radius: var(--box-radius) !important;">
                 <div class="modal-header">
                     <h5 class="modal-title" id="ModalBox-Title"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button id="modal-close-btn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center" id="ModalBox-Body">
                 </div>
@@ -328,14 +328,15 @@
     </div>
 
 <span id="interval" style="display: none;">{{.interval}}</span>
-<script src="js/common.js"></script>
+<span id="favicon" style="display: none;">{{.favicon}}</span>
 <script src="js/index.js"></script>
+<script src="js/common.js"></script>
 <!--
 @Program : Pi Dashboard Go (https://github.com/plutobell/pi-dashboard-go)
 @Description: Golang implementation of pi-dashboard
 @Author: github.com/plutobell
 @Creation: 2020-08-01
-@Last modification: 2021-08-24
-@Version: 1.4.1 -->
+@Last modification: 2021-08-27
+@Version: 1.5.0 -->
 </body>
 </html>

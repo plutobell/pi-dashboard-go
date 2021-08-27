@@ -3,8 +3,8 @@
 @Description: Golang implementation of pi-dashboard
 @Author: github.com/plutobell
 @Creation: 2020-08-01
-@Last modification: 2021-08-24
-@Version: 1.4.1
+@Last modification: 2021-08-27
+@Version: 1.5.0
 */
 
 ::-webkit-scrollbar {
@@ -36,10 +36,18 @@
     --real-memory-color: #D9E4DD;
     --swap-color: #D9E4DD;
     --disk-color: #CDC9C3;
-    --net-in-color: #D9E4DD;
-    --net-out-color: #CDC9C3;
     --box-bg-color: #eaebe9; /* #E8EAE6 */
     --backdrop-color: #363636;
+
+    --guage-font-color: black;
+    --guage-stops-color-1: #D9E4DD;
+    --guage-stops-color-5: #CDC9C3;
+    --guage-stops-color-9: #919191;
+
+    --net-in-color: #D9E4DD;
+    --net-out-color: #CDC9C3;
+    --net-grid-line-color: #e6e6e6;
+    --net-line-color: #ccd6eb;
 
     --box-radius: 15px;
 }
@@ -140,4 +148,86 @@ and (max-device-width : 768px) {
 .btn-close:focus {
     outline: none !important;
     box-shadow: none !important;
+}
+.inverted {
+    filter: invert(100%);
+}
+
+
+@media (prefers-color-scheme: dark) {
+    ::-webkit-scrollbar-track {
+        background: #3f3f3f;
+        -webkit-box-shadow: inset 0 0 5px #3f3f3f;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #7c7c7c;
+        -webkit-box-shadow: inset 0 0 10px #7c7c7c;
+    }
+
+    body{
+        background-color: #2d2d2d;
+        color: #c9d1d9;
+    }
+    input {
+        background-color: #3b3b3b !important;
+        border-color: #3b3b3b !important;
+        color: #c9d1d9 !important;
+    }
+    input:focus {
+        border: 1px solid #6b6b6b !important;
+    }
+
+    :root {
+        --label-color: #959c9c;
+        --navbar-color: #474747;
+        --cache-color: #414141;
+        --cpu-memory-title-color: #5e5e5e;
+        --temperature-color: #4b4b4b;
+        --ip-color: #414141;
+        --time-color: #5e5e5e;
+        --uptime-color: #4b4b4b;
+        --cpu-color: #414141;
+        --memory-color: #414141;
+        --real-memory-color: #414141;
+        --swap-color: #414141;
+        --disk-color: #5e5e5e;
+        --box-bg-color: #373938;
+        --backdrop-color: #363636;
+
+        --guage-font-color: #b9bebe;
+        --guage-stops-color-1: #626464;
+        --guage-stops-color-5: #878b8b;
+        --guage-stops-color-9: #b6b6b6;
+
+        --net-in-color: #414141;
+        --net-out-color: #5e5e5e;
+        --net-grid-line-color: #3d3d3d;
+        --net-line-color: #575757;
+
+        --box-radius: 15px;
+    }
+
+    .modal-content {
+        background-color: #252525;
+        color: #c9d1d9;
+    }
+    .dark-bg {
+        background-color: #505050 !important;
+    }
+    .spinner > div {
+        background-color: #c9d1d9;
+    }
+    .navbar-toggler {
+        color: #505050 !important;
+    }
+
+    #login-tips {
+        color: #c9d1d9;
+    }
+    #pimodel {
+        color: #c9d1d9;
+    }
+    #command-btns li img:hover{
+        border: 1px solid #606060 !important;
+    }
 }

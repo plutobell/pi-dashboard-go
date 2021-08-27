@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-24
-// @Version: 1.4.1
+// @Last modification: 2021-08-27
+// @Version: 1.5.0
 
 package server
 
@@ -236,7 +236,7 @@ func API(c echo.Context) error {
 			status := map[string]string{
 				"status": "Unauthorized",
 			}
-			return c.JSON(http.StatusUnauthorized, status)
+			return c.JSON(http.StatusOK, status)
 		}
 
 		device := device.Info()
@@ -259,7 +259,7 @@ func API(c echo.Context) error {
 			status := map[string]string{
 				"status": "Unauthorized",
 			}
-			return c.JSON(http.StatusUnauthorized, status)
+			return c.JSON(http.StatusOK, status)
 		}
 
 		operation := c.QueryParam("action")

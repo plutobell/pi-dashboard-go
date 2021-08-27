@@ -1,5 +1,13 @@
 # Changelog #
 
+**2021-08-27**
+
+* v1.5.0 : 
+  * Added dark mode that follows the device switch
+  * Added automatic jumping to the login page when not logged in
+  * Some other optimizations
+  * Updated dependencies
+
 **2021-08-24**
 
 * v1.4.1 : 

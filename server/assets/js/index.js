@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-24
-// @Version: 1.4.1
+// @Last modification: 2021-08-27
+// @Version: 1.5.0
 
 var new_version = ""
 var new_version_notes = ""
@@ -15,6 +15,12 @@ unScroll();
 $(document).ready(function() {
     var net_in_color = $(":root").css("--net-in-color");
     var net_out_color = $(":root").css("--net-out-color");
+    var net_grid_line_color = $(":root").css("--net-grid-line-color");
+    var net_line_color = $(":root").css("--net-line-color");
+    var guage_font_color = $(":root").css("--guage-font-color");
+    var guage_stops_color_1 = $(":root").css("--guage-stops-color-1");
+    var guage_stops_color_5 = $(":root").css("--guage-stops-color-5");
+    var guage_stops_color_9 = $(":root").css("--guage-stops-color-9");
 
     $("#year").text(new Date().getFullYear());
     $("#loading").hide();
@@ -38,7 +44,8 @@ $(document).ready(function() {
     var gaugeOptions = {
 
         chart: {
-            type: 'solidgauge'
+            type: 'solidgauge',
+            backgroundColor: 'transparent'
         },
 
         title: null,
@@ -49,7 +56,8 @@ $(document).ready(function() {
             startAngle: -90,
             endAngle: 90,
             background: {
-                backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#FFFFFF',
+                // backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#FFFFFF',
+                backgroundColor: 'transparent',
                 innerRadius: '60%',
                 outerRadius: '100%',
                 shape: 'arc'
@@ -63,9 +71,9 @@ $(document).ready(function() {
         // the value axis
         yAxis: {
             stops: [
-                [0.1, '#D9E4DD'],
-                [0.5, '#CDC9C3'],
-                [0.9, '#919191']
+                [0.1, guage_stops_color_1],
+                [0.5, guage_stops_color_5],
+                [0.9, guage_stops_color_9]
             ],
             lineWidth: 0,
             minorTickInterval: null,
@@ -104,7 +112,7 @@ $(document).ready(function() {
             data: [0],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:28px;color:' +
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span>' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || guage_font_color) + '">{y}</span>' +
                     '<span style="font-size:12px;color:silver">%</span></div>'
             },
             tooltip: {
@@ -128,7 +136,7 @@ $(document).ready(function() {
             data: [0],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || guage_font_color) + '">{y:.1f}</span><br/>' +
                     '<span style="font-size:12px;color:silver">MB</span></div>'
             },
             tooltip: {
@@ -152,7 +160,7 @@ $(document).ready(function() {
             data: [0],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:12px;color:' +
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || guage_font_color) + '">{y:.1f}</span><br/>' +
                     '<span style="font-size:10px;color:silver">MB</span></div>'
             },
             tooltip: {
@@ -176,7 +184,7 @@ $(document).ready(function() {
             data: [0],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:12px;color:' +
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || guage_font_color) + '">{y:.1f}</span><br/>' +
                     '<span style="font-size:10px;color:silver">MB</span></div>'
             },
             tooltip: {
@@ -200,7 +208,7 @@ $(document).ready(function() {
             data: [0],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:12px;color:' +
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || guage_font_color) + '">{y:.1f}</span><br/>' +
                     '<span style="font-size:10px;color:silver">MB</span></div>'
             },
             tooltip: {
@@ -224,7 +232,7 @@ $(document).ready(function() {
             data: [0],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:12px;color:' +
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || guage_font_color) + '">{y:.1f}</span><br/>' +
                     '<span style="font-size:10px;color:silver">GB</span></div>'
             },
             tooltip: {
@@ -236,6 +244,10 @@ $(document).ready(function() {
 
 
     var chartNetInterface1 = Highcharts.chart('container-net-interface-1', {
+        chart: {
+            backgroundColor: 'transparent',
+            type: 'line'
+        },
         title: {
             text: ''
         },
@@ -246,7 +258,8 @@ $(document).ready(function() {
             categories: [],
             title: {
                 text: ''
-            }
+            },
+            lineColor: net_line_color
         },
         yAxis: {
             title: {
@@ -254,7 +267,13 @@ $(document).ready(function() {
                 style: {
                     fontWeight: 'normal'
                 }
-            }
+            },
+            gridLineColor: net_grid_line_color
+            // labels: {
+            //     style: {
+            //     color: '#ffffff',
+            //     }
+            // }
         },
         series: [
             {
@@ -279,6 +298,10 @@ $(document).ready(function() {
     net_Out1 = [0,0,0,0,0,0,0,0,0,0];
 
     var chartNetInterface2 = Highcharts.chart('container-net-interface-2', {
+        chart: {
+            backgroundColor: 'transparent',
+            type: 'line'
+        },
         title: {
             text: ''
         },
@@ -289,7 +312,8 @@ $(document).ready(function() {
             categories: [],
             title: {
                 text: ''
-            }
+            },
+            lineColor: net_line_color
         },
         yAxis: {
             title: {
@@ -297,7 +321,8 @@ $(document).ready(function() {
                 style: {
                     fontWeight: 'normal'
                 }
-            }
+            },
+            gridLineColor: net_grid_line_color
         },
         series: [
             {
@@ -321,73 +346,77 @@ $(document).ready(function() {
     net_In2 = [0,0,0,0,0,0,0,0,0,0];
     net_Out2 = [0,0,0,0,0,0,0,0,0,0];
 
-    setInterval(function() {
-        var date = new Date();
-        var year = date.getFullYear();
-        var month = date.getMonth();
-        var day = date.getDate();
+    var interval = setInterval(function() {
+        // var date = new Date();
+        // var year = date.getFullYear();
 
         $.ajaxSetup(csrfAddToAjaxHeader());
         $.post('api/device', function(data){
-            $("#loading").hide();
-            removeUnScroll();
-
-            $("#login-users").text(data.login_user_count);
-            $("#hostip").text(data.ip);
-            $("#hostname").text(data.hostname);
-            $("#uname").text(data.uname);
-            $("#system").text(data.system);
-            // $("#time").text(data.now_time_hms);
-            // $("#date").text(data.now_time_ymd);
-            $("#uptime").text(data.uptime);
-            $("#cpu-temp").text(data.cpu_temperature);
-            $("#cpu-freq").text(data.cpu_freq);
-            $("#cpu-stat-idl").text(data.cpu_status_idle);
-            $("#cpu-stat-use").text(data.cpu_status_user);
-            $("#cpu-stat-sys").text(data.cpu_status_system);
-            $("#cpu-stat-nic").text(data.cpu_status_nice);
-            $("#cpu-stat-iow").text(data.cpu_status_iowait);
-            $("#cpu-stat-irq").text(data.cpu_status_irq);
-            $("#cpu-stat-sirq").text(data.cpu_status_softirq);
-            $("#mem-percent").text(data.memory_percent);
-            $("#mem-free").text(data.memory_free);
-            $("#mem-cached").text(data.memory_cached);
-            $("#mem-swap-total").text(data.swap_total);
-            $("#mem-cache-percent").text(data.memory_cached_percent);
-            $("#mem-buffers").text(data.memory_buffers);
-            $("#mem-real-percent").text(data.memory_real_percent);
-            $("#mem-real-free").text(data.memory_available);
-            $("#mem-swap-percent").text(data.swap_used_percent);
-            $("#mem-swap-free").text(data.swap_free);
-            $("#disk-percent").text(data.disk_used_percent);
-            $("#disk-free").text(data.disk_free);
-            $("#loadavg-1m").text(data.load_average_1m);
-            $("#loadavg-5m").text(data.load_average_5m);
-            $("#loadavg-10m").text(data.load_average_15m);
-            $("#loadavg-running").text(data.load_average_process_running);
-            $("#loadavg-threads").text(data.load_average_process_total);
-
-            $("#net-interface-1-total-in").text(data.net_status_lo_in_data_format);
-            $("#net-interface-1-total-out").text(data.net_status_lo_out_data_format);
-            $("#net-interface-2-total-in").text(data.net_status_in_data_format);
-            $("#net-interface-2-total-out").text(data.net_status_out_data_format);
-
-            $("#version").text("v" + data.version);
-            $("#version").attr('data-bs-original-title', "Compiled with " + data.go_version);
-
-            // $("#year").text(new Date().getFullYear());
-
-            if(window.dashboard != null)
-            {
-                window.dashboard_old = window.dashboard;
-            }
-            window.dashboard = data;
-
-        }).fail(function() {
+            if (data.status == "Unauthorized") {
                 $("#loading").show();
-                $('#ModalBox').modal('hide');
                 unScroll();
-            });
+                clearInterval(interval);
+                $(window).attr('location','/login');
+            } else {
+                $("#loading").hide();
+                removeUnScroll();
+
+                $("#login-users").text(data.login_user_count);
+                $("#hostip").text(data.ip);
+                $("#hostname").text(data.hostname);
+                $("#uname").text(data.uname);
+                $("#system").text(data.system);
+                // $("#time").text(data.now_time_hms);
+                // $("#date").text(data.now_time_ymd);
+                $("#uptime").text(data.uptime);
+                $("#cpu-temp").text(data.cpu_temperature);
+                $("#cpu-freq").text(data.cpu_freq);
+                $("#cpu-stat-idl").text(data.cpu_status_idle);
+                $("#cpu-stat-use").text(data.cpu_status_user);
+                $("#cpu-stat-sys").text(data.cpu_status_system);
+                $("#cpu-stat-nic").text(data.cpu_status_nice);
+                $("#cpu-stat-iow").text(data.cpu_status_iowait);
+                $("#cpu-stat-irq").text(data.cpu_status_irq);
+                $("#cpu-stat-sirq").text(data.cpu_status_softirq);
+                $("#mem-percent").text(data.memory_percent);
+                $("#mem-free").text(data.memory_free);
+                $("#mem-cached").text(data.memory_cached);
+                $("#mem-swap-total").text(data.swap_total);
+                $("#mem-cache-percent").text(data.memory_cached_percent);
+                $("#mem-buffers").text(data.memory_buffers);
+                $("#mem-real-percent").text(data.memory_real_percent);
+                $("#mem-real-free").text(data.memory_available);
+                $("#mem-swap-percent").text(data.swap_used_percent);
+                $("#mem-swap-free").text(data.swap_free);
+                $("#disk-percent").text(data.disk_used_percent);
+                $("#disk-free").text(data.disk_free);
+                $("#loadavg-1m").text(data.load_average_1m);
+                $("#loadavg-5m").text(data.load_average_5m);
+                $("#loadavg-10m").text(data.load_average_15m);
+                $("#loadavg-running").text(data.load_average_process_running);
+                $("#loadavg-threads").text(data.load_average_process_total);
+
+                $("#net-interface-1-total-in").text(data.net_status_lo_in_data_format);
+                $("#net-interface-1-total-out").text(data.net_status_lo_out_data_format);
+                $("#net-interface-2-total-in").text(data.net_status_in_data_format);
+                $("#net-interface-2-total-out").text(data.net_status_out_data_format);
+
+                $("#version").text("v" + data.version);
+                $("#version").attr('data-bs-original-title', "Compiled with " + data.go_version);
+
+                // $("#year").text(new Date().getFullYear());
+
+                if(window.dashboard != null)
+                {
+                    window.dashboard_old = window.dashboard;
+                }
+                window.dashboard = data;
+            }
+        }).fail(function() {
+            $("#loading").show();
+            $('#ModalBox').modal('hide');
+            unScroll();
+        });
 
         if(window.dashboard != null){
             var point;
@@ -531,6 +560,8 @@ $("#reboot").click(function(){
             showModalBox("Reboot Device", '"Reboot Device" requires running Pi Dashboard Go as root user')
             unScroll();
             $("#reboot").css("pointer-events", "auto");
+        } else if (data.status == "Unauthorized") {
+            $(window).attr('location','/login');
         } else {
             showModalBox("Reboot Device", "Unknown Error");
             $("#loading").show();
@@ -558,6 +589,8 @@ $("#shutdown").click(function(){
             showModalBox("Shutdown Device", '"Shutdown Device" requires running Pi Dashboard Go as root user')
             unScroll();
             $("#shutdown").css("pointer-events", "auto");
+        } else if (data.status == "Unauthorized") {
+            $(window).attr('location','/login');
         } else {
             showModalBox("Shutdown Device", "Unknown Error");
             $("#loading").show();
@@ -586,6 +619,8 @@ $("#dropcaches").click(function(){
             // $("#loading").show();
             // unScroll();
             $("#dropcaches").css("pointer-events", "auto");
+        } else if (data.status == "Unauthorized") {
+            $(window).attr('location','/login');
         } else {
             showModalBox("Drop Caches", "Unknown Error");
             // $("#loading").show();
