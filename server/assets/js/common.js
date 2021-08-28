@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-27
-// @Version: 1.5.0
+// @Last modification: 2021-08-28
+// @Version: 1.5.1
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function (event) {
@@ -72,6 +72,13 @@ if (typeof media.addEventListener === 'function') {
 } else if (typeof media.addEventListener === 'function') {
     media.addEventListener(callback);
 }
+
+$('.dropdown-item').on('click',function() {
+    $('.navbar-collapse').collapse('hide');
+});
+$('#logout').on('click',function() {
+    $('.navbar-collapse').collapse('hide');
+});
 
 function getCookie(name) {
     var cookieValue = null;

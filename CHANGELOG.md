@@ -1,5 +1,11 @@
 # Changelog #
 
+**2021-08-28**
+
+* v1.5.1 : 
+  * Fixed the bug of load average display
+  * Added the navbar to close automatically when clicked on mobile devices
+
 **2021-08-27**
 
 * v1.5.0 : 

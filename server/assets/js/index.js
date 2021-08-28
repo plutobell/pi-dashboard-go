@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-27
-// @Version: 1.5.0
+// @Last modification: 2021-08-28
+// @Version: 1.5.1
 
 var new_version = ""
 var new_version_notes = ""
@@ -392,7 +392,7 @@ $(document).ready(function() {
                 $("#disk-free").text(data.disk_free);
                 $("#loadavg-1m").text(data.load_average_1m);
                 $("#loadavg-5m").text(data.load_average_5m);
-                $("#loadavg-10m").text(data.load_average_15m);
+                $("#loadavg-15m").text(data.load_average_15m);
                 $("#loadavg-running").text(data.load_average_process_running);
                 $("#loadavg-threads").text(data.load_average_process_total);
 

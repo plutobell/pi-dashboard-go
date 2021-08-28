@@ -2,6 +2,8 @@ package device
 
 import (
 	"testing"
+
+	"github.com/plutobell/pi-dashboard-go/device"
 )
 
 func Test_Popen(t *testing.T) {
@@ -14,7 +16,7 @@ func Test_Popen(t *testing.T) {
 
 func Benchmark_TimeConsumingFunction(b *testing.B) {
 	for i := 0; i < 10000; i++ {
-		Device()
+		device.Info()
 	}
 }
 
