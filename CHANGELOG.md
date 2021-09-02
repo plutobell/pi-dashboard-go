@@ -1,5 +1,12 @@
 # Changelog #
 
+**2021-09-02**
+
+* v1.6.0 : 
+  * Refactored device package to significantly improve performance and speed
+  * Improved front-end display details
+  * Updated dependencies
+
 **2021-08-28**
 
 * v1.5.1 : 

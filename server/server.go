@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-28
-// @Version: 1.5.1
+// @Last modification: 2021-09-02
+// @Version: 1.6.0
 
 package server
 
@@ -144,8 +144,8 @@ func Login(c echo.Context) error {
 	device["version"] = config.VERSION
 	device["site_title"] = config.Title
 	device["go_version"] = runtime.Version()
-	device["device_photo"] = tempDevice["device_photo"]
-	device["favicon"] = tempDevice["favicon"]
+	device["device_photo"] = tempDevice["device_photo"].(string)
+	device["favicon"] = tempDevice["favicon"].(string)
 
 	return c.Render(http.StatusOK, "login.tmpl", device)
 }

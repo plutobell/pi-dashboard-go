@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-28
-// @Version: 1.5.1
+// @Last modification: 2021-09-02
+// @Version: 1.6.0
 
 window.oncontextmenu=function(){return false;}
 window.onkeydown = window.onkeyup = window.onkeypress = function (event) {
@@ -22,6 +22,7 @@ $(document).ready(function() {
     if(window.matchMedia('(prefers-color-scheme: dark)').matches){
         $("#modal-close-btn").addClass("btn-close-white");
         $("footer").eq(0).addClass("border-secondary");
+        $("meta[name='theme-color']").attr('content', '#474747');
         if ($("#favicon").text() == "linux.ico") {
             $("#device-photo").addClass("inverted");
             $("#icon").attr("href", "favicons/linux_light.ico");
@@ -30,6 +31,7 @@ $(document).ready(function() {
     } else {
         $("#modal-close-btn").removeClass("btn-close-white");
         $("footer").eq(0).removeClass("border-secondary");
+        $("meta[name='theme-color']").attr('content', '#555555');
         $("#device-photo").removeClass("inverted");
         if ($("#favicon").text() == "linux.ico") {
             $("#icon").attr("href", "favicons/linux.ico");
@@ -47,6 +49,7 @@ let callback = (e) => {
     if (prefersDarkMode) {
         $("#modal-close-btn").addClass("btn-close-white");
         $("footer").eq(0).addClass("border-secondary");
+        $("meta[name='theme-color']").attr('content', '#474747');
         if ($("#favicon").text() == "linux.ico") {
             $("#device-photo").addClass("inverted");
             $("#icon").attr("href", "favicons/linux_light.ico");
@@ -56,6 +59,7 @@ let callback = (e) => {
     } else {
         $("#modal-close-btn").removeClass("btn-close-white");
         $("footer").eq(0).removeClass("border-secondary");
+        $("meta[name='theme-color']").attr('content', '#555555');
         $("#device-photo").removeClass("inverted");
         if ($("#favicon").text() == "linux.ico") {
             $("#icon").attr("href", "favicons/linux.ico");

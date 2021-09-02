@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-28
-// @Version: 1.5.1
+// @Last modification: 2021-09-02
+// @Version: 1.6.0
 
 var new_version = ""
 var new_version_notes = ""
@@ -112,7 +112,7 @@ $(document).ready(function() {
             data: [0],
             dataLabels: {
                 format: '<div style="text-align:center"><span style="font-size:28px;color:' +
-                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || guage_font_color) + '">{y}</span>' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || guage_font_color) + '">{y:.1f}</span>' +
                     '<span style="font-size:12px;color:silver">%</span></div>'
             },
             tooltip: {

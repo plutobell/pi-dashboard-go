@@ -19,7 +19,7 @@
 
 ## Install
 
-Thanks to the characteristics of the Golang language, the deployment of **Pi Dashboard Go** is very simple: **single binary executable file**.
+Thanks to the characteristics of the **[Golang](https://golang.org/)** language, the deployment of **Pi Dashboard Go** is very simple: **single binary executable file**.
 
 #### Download
 
@@ -44,7 +44,7 @@ chmod +x pi-dashboard-go
 **Pi Dashboard Go** can be configured via command line parameters：
 
 ```bash
-Pi Dashboard Go version: v1.5.1
+Pi Dashboard Go version: v1.6.0
 Project address: https://github.com/plutobell/pi-dashboard-go
 
 Usage: Pi Dashboard Go [-auth USR:PSW] [-disk Paths] [-help]
@@ -79,10 +79,12 @@ Options:
 ## Thanks
 
 * **[Pi Dashboard](https://github.com/spoonysonny/pi-dashboard)**
-* **[Golang](https://golang.org/)**
 * **[echo](https://github.com/labstack/echo)**
+* **[gopsutil](https://github.com/shirou/gopsutil)**
 
-
+* **[bootstrap](https://github.com/twbs/bootstrap)**
+* **[jquery](https://github.com/jquery/jquery)**
+* **[highcharts](https://github.com/highcharts/highcharts)**
 
 ## Changelog
 

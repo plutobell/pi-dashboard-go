@@ -2,23 +2,565 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-08-28
-// @Version: 1.5.1
+// @Last modification: 2021-09-02
+// @Version: 1.6.0
 
 package device
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"math"
 	"os/exec"
+	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/plutobell/pi-dashboard-go/config"
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v3/host"
+	"github.com/shirou/gopsutil/v3/load"
+	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v3/net"
 )
+
+//piCpuModelInfo Raspberry Pi CPU型号信息
+var piCpuModelInfo = map[string]string{
+	"Raspberry Pi 4 Model B":  "BCM2711",
+	"Raspberry Pi 3 Model B+": "BCM2837B0",
+	"Raspberry Pi 3 Model B":  "BCM2837/A0/B0",
+	"Raspberry Pi 2 Model B":  "BCM2836/7",
+	"Raspberry Pi Model B+":   "BCM2835",
+	"Raspberry Pi Model B":    "BCM2835",
+	"Raspberry Pi 3 Model A+": "BCM2837B0",
+	"Raspberry Pi Model A+":   "BCM2835",
+	"Raspberry Pi Zero WH":    "BCM2835",
+	"Raspberry Pi Zero W":     "BCM2835",
+	"Raspberry Pi Zero":       "BCM2835",
+}
+
+//Command 命令列表
+var command map[string]string = map[string]string{
+	"ip":               "ip a | grep -w inet | grep -v inet6 | grep -v 127 | awk '{ print $2 }'",
+	"login_user_count": "who -q | awk 'NR==2{print $2}'",
+	"system":           "cat /etc/os-release | grep PRETTY_NAME=",
+	"uname":            "uname -a",
+	"model":            "cat /proc/cpuinfo | grep -i Model |sort -u |head -1",
+	"cpu_status":       "top -bn1 | grep -w '%Cpu(s):' | awk '{ print $2,$4,$6,$8,$10,$12,$14,$16}'",
+	"cpu_model_name":   "lscpu | grep 'Model name' | awk '{ print $3}'",
+	"cpu_freq":         "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
+}
+
+var (
+	arch  string
+	os    string
+	model string
+)
+
+type Host struct {
+	Model          string `json:"model"`
+	HostName       string `json:"hostname"`
+	Uptime         string `json:"uptime_raw"`
+	UptimeFormat   string `json:"uptime"`
+	IP             string `json:"ip"`
+	System         string `json:"system"`
+	Uname          string `json:"uname"`
+	CurrentUser    string `json:"current_user"`
+	OS             string `json:"os"`
+	LoginUserCount string `json:"login_user_count"`
+	NowTimeHMS     string `json:"now_time_hms"`
+	NowTimeYMD     string `json:"now_time_ymd"`
+}
+
+type CPU struct {
+	Arch        string `json:"arch"`
+	Cores       string `json:"cpu_cores"`
+	Mhz         string `json:"cpu_freq"`
+	ModelName   string `json:"cpu_model_name"`
+	Revision    string `json:"cpu_revision"`
+	Idle        string `json:"cpu_status_idle"`
+	Iowait      string `json:"cpu_status_iowait"`
+	Irq         string `json:"cpu_status_irq"`
+	Nice        string `json:"cpu_status_nice"`
+	Softirg     string `json:"cpu_status_softirq"`
+	System      string `json:"cpu_status_system"`
+	User        string `json:"cpu_status_user"`
+	Temperature string `json:"cpu_temperature"`
+	UsedPercent string `json:"cpu_used"`
+}
+
+type Disk struct {
+	Path        string `json:"disk_name"`
+	Free        string `json:"disk_free"`
+	Total       string `json:"disk_total"`
+	Used        string `json:"disk_used"`
+	UsedPercent string `json:"disk_used_percent"`
+}
+
+type Memory struct {
+	Total         string `json:"memory_total"`
+	Used          string `json:"memory_used"`
+	Free          string `json:"memory_free"`
+	Percent       string `json:"memory_percent"`
+	Available     string `json:"memory_available"`
+	Buffers       string `json:"memory_buffers"`
+	Cached        string `json:"memory_cached"`
+	CachedPercent string `json:"memory_cached_percent"`
+	RealPercent   string `json:"memory_real_percent"`
+	RealUsed      string `json:"memory_real_used"`
+
+	SwapTotal       string `json:"swap_total"`
+	SwapFree        string `json:"swap_free"`
+	SwapUsed        string `json:"swap_used"`
+	SwapUsedPercent string `json:"swap_used_percent"`
+}
+
+type Net struct {
+	Name           string `json:"net_dev_name"`
+	DataIn         string `json:"net_status_in_data"`
+	DataOut        string `json:"net_status_out_data"`
+	DataInFormat   string `json:"net_status_in_data_format"`
+	DatatOutFormat string `json:"net_status_out_data_format"`
+	PackageIn      string `json:"net_status_in_package"`
+	PackageOut     string `json:"net_status_out_package"`
+	LoadAvg        string `json:"net_status_load_average"`
+}
+
+type NetLo struct {
+	Name           string `json:"net_lo_dev_name"`
+	DataIn         string `json:"net_status_lo_in_data"`
+	DataOut        string `json:"net_status_lo_out_data"`
+	DataInFormat   string `json:"net_status_lo_in_data_format"`
+	DatatOutFormat string `json:"net_status_lo_out_data_format"`
+	PackageIn      string `json:"net_status_lo_in_package"`
+	PackageOut     string `json:"net_status_lo_out_package"`
+	LoadAvg        string `json:"net_status_lo_load_average"`
+}
+
+type Load struct {
+	Load1  string `json:"load_average_1m"`
+	Load5  string `json:"load_average_5m"`
+	Load15 string `json:"load_average_15m"`
+}
+
+type Process struct {
+	Running string `json:"load_average_process_running"`
+	Total   string `json:"load_average_process_total"`
+}
+
+func init() {
+	arch = runtime.GOARCH
+	os = runtime.GOOS
+
+}
+
+func (hh *Host) Get() {
+	h, err := host.Info()
+	if err != nil {
+		panic(err)
+	}
+
+	nowTime := strings.Split(time.Now().Format("2006-01-02 15:04:05"), " ")
+	hh.NowTimeYMD = nowTime[0]
+	hh.NowTimeHMS = nowTime[1]
+
+	hh.HostName = h.Hostname
+	hh.Uptime = strconv.Itoa(int(h.Uptime))
+	hh.UptimeFormat = resolveTime(hh.Uptime)
+	hh.OS = h.OS
+
+	if hh.OS == "linux" {
+		res, err := Popen(command["model"])
+		if err != nil {
+			panic(err)
+		}
+		res = strings.Replace(res, "\n", "", -1)
+		if strings.Contains(arch, "arm") {
+			if strings.Contains(res, ":") {
+				hh.Model = strings.TrimSpace(strings.Split(res, ":")[1])
+			} else {
+				hh.Model = "NaN"
+			}
+		} else {
+			hh.Model = "Linux Computer"
+		}
+		model = hh.Model
+	}
+
+	if hh.OS == "windows" {
+		hh.System = h.Platform + " " + h.PlatformVersion
+	} else {
+		res, err := Popen(command["system"])
+		if err != nil {
+			panic(err)
+		}
+		res = strings.Replace(res, "\n", "", -1)
+		if strings.Contains(res, "\"") {
+			hh.System = strings.Replace(strings.Replace(strings.Split(res, "\"")[1], " GNU/Linux ", " ", -1), "\"", "", -1)
+		} else {
+			hh.System = "NaN"
+		}
+	}
+
+	if hh.OS == "linux" {
+		res, err := Popen(command["ip"])
+		if err != nil {
+			panic(err)
+		}
+		res = strings.Replace(res, "\n", "", -1)
+		hh.IP = strings.Split(res, "/")[0]
+
+		res, err = Popen(command["uname"])
+		if err != nil {
+			panic(err)
+		}
+		res = strings.Replace(res, "\n", "", -1)
+		hh.Uname = res
+
+		res, err = Popen(command["login_user_count"])
+		if err != nil {
+			panic(err)
+		}
+		res = strings.Replace(res, "\n", "", -1)
+		hh.LoginUserCount = strings.Split(res, "=")[1]
+
+		hh.CurrentUser = config.LinuxUserInfo.Username
+	}
+}
+
+func (cc *CPU) Get() {
+	cpuInfo, err := cpu.Info()
+	if err != nil {
+		panic(err)
+	}
+
+	cpuCounts, err := cpu.Counts(false)
+	if err != nil {
+		panic(err)
+	}
+	cc.Cores = strconv.Itoa(cpuCounts)
+	cc.Arch = arch
+	cc.Revision = ""
+
+	if strings.Contains(arch, "arm") {
+		res, err := Popen(command["cpu_model_name"])
+		if err != nil {
+			panic(err)
+		}
+		res = strings.Replace(res, "\n", "", -1)
+		cc.ModelName = res
+		for key, value := range piCpuModelInfo {
+			if strings.Contains(model, key) {
+				cc.Revision = cc.ModelName
+				cc.ModelName = value
+				break
+			}
+		}
+	} else if cpuInfo[0].ModelName != "" {
+		cc.ModelName = cpuInfo[0].ModelName
+	} else {
+		cc.ModelName = "NaN"
+	}
+
+	cpuPercent, err := cpu.Percent(0, false)
+	cc.UsedPercent = strconv.FormatFloat(cpuPercent[0], 'f', 1, 64)
+
+	if strings.Contains(arch, "arm") {
+		res, err := Popen(command["cpu_freq"])
+		if err != nil {
+			panic(err)
+		}
+		res = strings.Replace(res, "\n", "", -1)
+		cpuFreq, _ := strconv.ParseInt(res, 10, 64)
+		cc.Mhz = strconv.FormatInt(cpuFreq/1000, 10)
+	} else {
+		cc.Mhz = strconv.FormatInt(int64(cpuInfo[0].Mhz), 10)
+	}
+
+	if os == "linux" {
+		res, err := Popen(command["cpu_status"])
+		if err != nil {
+			panic(err)
+		}
+		res = strings.Replace(res, "\n", "", -1)
+		cpuStatusRaw := res
+		exceptionSituation := []string{"id,", "wa,", "hi,", "si,"}
+		for _, exception := range exceptionSituation {
+			if exception == "id" {
+				cpuStatusRaw = strings.Replace(cpuStatusRaw, exception, "100.0", -1)
+			} else {
+				cpuStatusRaw = strings.Replace(cpuStatusRaw, exception, "0.0", -1)
+			}
+		}
+		cpuStatus := strings.Split(cpuStatusRaw, " ")
+		cc.User = cpuStatus[0]
+		cc.Nice = cpuStatus[1]
+		cc.System = cpuStatus[2]
+		cc.Idle = cpuStatus[3]
+		cc.Iowait = cpuStatus[4]
+		cc.Irq = cpuStatus[5]
+		cc.Softirg = cpuStatus[6]
+	} else {
+		cpuTimes, _ := cpu.Times(false)
+		if err != nil {
+			panic(err)
+		}
+		timesTotal := cpuTimes[0].Total()
+		cc.Idle = strconv.FormatFloat(cpuTimes[0].Idle/timesTotal*100, 'f', 1, 64)
+		cc.Iowait = strconv.FormatFloat(cpuTimes[0].Iowait/timesTotal*100, 'f', 1, 64)
+		cc.Irq = strconv.FormatFloat(cpuTimes[0].Irq/timesTotal*100, 'f', 1, 64)
+		cc.Nice = strconv.FormatFloat(cpuTimes[0].Nice/timesTotal*100, 'f', 1, 64)
+		cc.Softirg = strconv.FormatFloat(cpuTimes[0].Softirq/timesTotal*100, 'f', 1, 64)
+		cc.System = strconv.FormatFloat((cpuTimes[0].System / timesTotal * 100), 'f', 1, 64)
+		cc.User = strconv.FormatFloat(cpuTimes[0].User/timesTotal*100, 'f', 1, 64)
+	}
+
+	temperature, err := host.SensorsTemperatures()
+	if err != nil {
+		panic(err)
+	}
+	if len(temperature) != 0 {
+		cc.Temperature = strconv.FormatFloat(temperature[0].Temperature, 'f', 1, 64)
+	} else {
+		cc.Temperature = "NaN"
+	}
+}
+
+func (dd *Disk) Get(path string) {
+	d, err := disk.Usage(path)
+	if err != nil {
+		panic(err)
+	}
+
+	dd.Path = strings.ToUpper(d.Path)
+	dd.Total = strconv.FormatFloat(float64(d.Total)/1024/1024/1024, 'f', 1, 64)
+	dd.Free = strconv.FormatFloat(float64(d.Free)/1024/1024/1024, 'f', 1, 64)
+	dd.Used = strconv.FormatFloat(float64(d.Used)/1024/1024/1024, 'f', 1, 64)
+	dd.UsedPercent = strconv.FormatFloat(d.UsedPercent, 'f', 1, 64)
+}
+
+func (mm *Memory) Get() {
+	m, err := mem.VirtualMemory()
+	if err != nil {
+		panic(err)
+	}
+
+	mm.Total = strconv.FormatFloat(float64(m.Total)/1024/1024, 'f', 1, 64)
+	mm.Free = strconv.FormatFloat(float64(m.Free)/1024/1024, 'f', 1, 64)
+	mm.Buffers = strconv.FormatFloat(float64(m.Buffers)/1024/1024, 'f', 1, 64)
+	mm.Cached = strconv.FormatFloat(float64(m.Cached)/1024/1024, 'f', 1, 64)
+	mm.Available = strconv.FormatFloat(float64(m.Available)/1024/1024, 'f', 1, 64)
+	mm.Used = strconv.FormatFloat(float64((m.Used+m.Buffers+m.Cached))/1024/1024, 'f', 1, 64)
+	mm.Percent = strconv.FormatFloat(float64((m.Used+m.Buffers+m.Cached))/float64(m.Total)*100, 'f', 1, 64)
+	mm.CachedPercent = strconv.FormatFloat(float64(m.Cached)/float64(m.Total)*100, 'f', 1, 64)
+	mm.RealUsed = strconv.FormatFloat(float64((m.Total-m.Available)/1024/1024), 'f', 1, 64)
+	mm.RealPercent = strconv.FormatFloat((float64(m.Total)-float64(m.Available))/float64(m.Total)*100, 'f', 1, 64)
+
+	mm.SwapTotal = strconv.FormatFloat(float64(m.SwapTotal)/1024/1024, 'f', 1, 64)
+	mm.SwapFree = strconv.FormatFloat(float64(m.SwapFree)/1024/1024, 'f', 1, 64)
+	mm.SwapUsed = strconv.FormatFloat((float64(m.SwapTotal)-float64(m.SwapFree))/1024/1024, 'f', 1, 64)
+	if m.SwapTotal != 0 && m.SwapTotal-m.SwapFree != 0 {
+		swapUsedFloat, _ := strconv.ParseFloat(mm.SwapUsed, 64)
+		swapTotalFloat, _ := strconv.ParseFloat(mm.SwapTotal, 64)
+		mm.SwapUsedPercent = strconv.FormatFloat(swapUsedFloat/swapTotalFloat*100, 'f', 1, 64)
+	} else {
+		mm.SwapUsedPercent = "0.0"
+	}
+	if m.SwapFree == 0 && m.SwapTotal == 0 {
+		mm.SwapUsedPercent = "0.0"
+		mm.SwapFree = "0.0"
+		mm.SwapTotal = "0.0"
+		mm.SwapUsed = "0.0"
+	}
+
+}
+
+func (nn *Net) Get(name string) {
+	n, err := net.IOCounters(true)
+	if err != nil {
+		panic(err)
+	}
+
+	var existed bool
+	for _, item := range n {
+		if item.Name == name {
+			nn.Name = item.Name
+			nn.DataIn = strconv.Itoa(int(item.BytesRecv))
+			nn.DataOut = strconv.Itoa(int(item.BytesSent))
+			nn.PackageIn = strconv.Itoa(int(item.PacketsRecv))
+			nn.PackageOut = strconv.Itoa(int(item.PacketsSent))
+
+			existed = true
+		}
+	}
+	if !existed {
+		fmt.Println("Not found " + name)
+	} else {
+		packageInFloat, _ := strconv.ParseFloat(nn.PackageIn, 64)
+		packageOutFloat, _ := strconv.ParseFloat(nn.PackageOut, 64)
+		nn.LoadAvg = strconv.FormatFloat((packageInFloat+packageOutFloat)/2, 'f', 1, 64)
+
+		dataInFloat, _ := strconv.ParseFloat(nn.DataIn, 64)
+		dataOutFloat, _ := strconv.ParseFloat(nn.DataOut, 64)
+		nn.DataInFormat = bytesRound(float64(dataInFloat), 2)
+		nn.DatatOutFormat = bytesRound(float64(dataOutFloat), 2)
+	}
+}
+
+func (nn *NetLo) Get(name string) {
+	n, err := net.IOCounters(true)
+	if err != nil {
+		panic(err)
+	}
+
+	var existed bool
+	for _, item := range n {
+		if item.Name == name {
+			nn.Name = item.Name
+			nn.DataIn = strconv.Itoa(int(item.BytesRecv))
+			nn.DataOut = strconv.Itoa(int(item.BytesSent))
+			nn.PackageIn = strconv.Itoa(int(item.PacketsRecv))
+			nn.PackageOut = strconv.Itoa(int(item.PacketsSent))
+
+			existed = true
+		}
+	}
+	if !existed {
+		fmt.Println("Not found " + name)
+	} else {
+		packageInFloat, _ := strconv.ParseFloat(nn.PackageIn, 64)
+		packageOutFloat, _ := strconv.ParseFloat(nn.PackageOut, 64)
+		nn.LoadAvg = strconv.FormatFloat((packageInFloat+packageOutFloat)/2, 'f', 1, 64)
+
+		dataInFloat, _ := strconv.ParseFloat(nn.DataIn, 64)
+		dataOutFloat, _ := strconv.ParseFloat(nn.DataOut, 64)
+		nn.DataInFormat = bytesRound(float64(dataInFloat), 2)
+		nn.DatatOutFormat = bytesRound(float64(dataOutFloat), 2)
+	}
+}
+
+func (ll *Load) Get() {
+	l, err := load.Avg()
+	if err != nil {
+		panic(err)
+	}
+
+	ll.Load1 = strconv.FormatFloat(l.Load1, 'f', 2, 64)
+	ll.Load5 = strconv.FormatFloat(l.Load5, 'f', 2, 64)
+	ll.Load15 = strconv.FormatFloat(l.Load15, 'f', 2, 64)
+}
+
+func (pp *Process) Get() {
+	p, err := load.Misc()
+	if err != nil {
+		panic(err)
+	}
+
+	pp.Running = strconv.Itoa(p.ProcsRunning)
+	pp.Total = strconv.Itoa(p.ProcsTotal)
+}
+
+func (hh Host) String() string {
+	s, _ := json.Marshal(hh)
+	return string(s)
+}
+
+func (cc CPU) String() string {
+	s, _ := json.Marshal(cc)
+	return string(s)
+}
+
+func (dd Disk) String() string {
+	s, _ := json.Marshal(dd)
+	return string(s)
+}
+
+func (mm Memory) String() string {
+	s, _ := json.Marshal(mm)
+	return string(s)
+}
+
+func (nn Net) String() string {
+	s, _ := json.Marshal(nn)
+	return string(s)
+}
+
+func (ll Load) String() string {
+	s, _ := json.Marshal(ll)
+	return string(s)
+}
+
+func (pp Process) String() string {
+	s, _ := json.Marshal(pp)
+	return string(s)
+}
+
+func Info() map[string]interface{} {
+	device := make(map[string]interface{})
+
+	host := new(Host)
+	host.Get()
+	hostMap, _ := struct2Map(host, "json")
+	device = mergeMap(device, hostMap)
+	// fmt.Println("host:", host)
+
+	cpu := new(CPU)
+	cpu.Get()
+	cpuMap, _ := struct2Map(cpu, "json")
+	device = mergeMap(device, cpuMap)
+	// fmt.Println("cpu:", cpu)
+
+	disk := new(Disk)
+	disk.Get(config.Disk)
+	diskMap, _ := struct2Map(disk, "json")
+	device = mergeMap(device, diskMap)
+	// fmt.Println("disk:", disk)
+
+	mem := new(Memory)
+	mem.Get()
+	memMap, _ := struct2Map(mem, "json")
+	device = mergeMap(device, memMap)
+	// fmt.Println("memory:", mem)
+
+	netLo := new(NetLo)
+	netLo.Get("lo")
+	netLoMap, _ := struct2Map(netLo, "json")
+	device = mergeMap(device, netLoMap)
+	// fmt.Println("net:", netLo)
+
+	net := new(Net)
+	net.Get(config.Net)
+	netMap, _ := struct2Map(net, "json")
+	device = mergeMap(device, netMap)
+	// fmt.Println("net:", net)
+
+	load := new(Load)
+	load.Get()
+	loadMap, _ := struct2Map(load, "json")
+	device = mergeMap(device, loadMap)
+	// fmt.Println("load:", load)
+
+	process := new(Process)
+	process.Get()
+	processMap, _ := struct2Map(process, "json")
+	device = mergeMap(device, processMap)
+	// fmt.Println("process:", process)
+
+	if strings.Contains(strings.ToLower(device["model"].(string)), "raspberry") {
+		device["device_photo"] = "raspberrypi.png"
+		device["favicon"] = "raspberrypi.ico"
+	} else {
+		device["device_photo"] = "linux.png"
+		device["favicon"] = "linux.ico"
+	}
+
+	return device
+}
 
 //Popen 函数用于执行系统命令
 func Popen(command string) (string, error) {
@@ -50,251 +592,6 @@ func Popen(command string) (string, error) {
 	}
 
 	return string(bytes), nil
-}
-
-//Device 函数获取设备信息
-func Info() map[string]string {
-	//piCpuModelInfo Raspberry Pi CPU型号信息
-	piCpuModelInfo := map[string]string{
-		"Raspberry Pi 4 Model B":  "BCM2711",
-		"Raspberry Pi 3 Model B+": "BCM2837B0",
-		"Raspberry Pi 3 Model B":  "BCM2837/A0/B0",
-		"Raspberry Pi 2 Model B":  "BCM2836/7",
-		"Raspberry Pi Model B+":   "BCM2835",
-		"Raspberry Pi Model B":    "BCM2835",
-		"Raspberry Pi 3 Model A+": "BCM2837B0",
-		"Raspberry Pi Model A+":   "BCM2835",
-		"Raspberry Pi Zero WH":    "BCM2835",
-		"Raspberry Pi Zero W":     "BCM2835",
-		"Raspberry Pi Zero":       "BCM2835",
-	}
-
-	//Command 命令列表
-	device := make(map[string]string)
-	var command map[string]string = map[string]string{
-		"ip":               "ip a | grep -w inet | grep -v inet6 | grep -v 127 | awk '{ print $2 }'",
-		"uptime":           "cat /proc/uptime | awk '{ print $1}'",
-		"login_user_count": "who -q | awk 'NR==2{print $2}'",
-		"load_average":     "cat /proc/loadavg | awk '{print $1,$2,$3,$4}'",
-		"hostname":         "cat /etc/hostname",
-		"os":               "uname -o",
-		"system":           "cat /etc/os-release | grep PRETTY_NAME=",
-		"arch":             "arch",
-		"uname":            "uname -a",
-		"model":            "cat /proc/cpuinfo | grep -i Model |sort -u |head -1",
-		"cpu_revision":     "cat /proc/cpuinfo | grep Revision | awk '{ print $3}'",
-		"cpu_model_name":   "lscpu | grep 'Model name' | awk '{ print $3}'",
-		"cpu_cores":        "lscpu | grep 'CPU(s):' | awk '{ print $2}'",
-		"cpu_status":       "top -bn1 | grep -w '%Cpu(s):' | awk '{ print $2,$4,$6,$8,$10,$12,$14,$16}'",
-		"cpu_used":         "cat <(grep 'cpu ' /proc/stat) <(sleep 1 && grep 'cpu ' /proc/stat) | awk -v RS='' '{print ($13-$2+$15-$4)*100/($13-$2+$15-$4+$16-$5)}'",
-		"cpu_temperature":  "cat /sys/class/thermal/thermal_zone0/temp",
-		"cpu_freq":         "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
-		"memory_total":     "cat /proc/meminfo | grep -w MemTotal: | awk '{ print $2}'",
-		"memory_free":      "cat /proc/meminfo | grep -w MemFree: | awk '{ print $2}'",
-		"memory_available": "cat /proc/meminfo | grep -w MemAvailable: | awk '{ print $2}'",
-		"memory_buffers":   "cat /proc/meminfo | grep -w Buffers: | awk '{ print $2}'",
-		"memory_cached":    "cat /proc/meminfo | grep -w Cached: | awk '{ print $2}'",
-		"swap_total":       "cat /proc/meminfo | grep SwapTotal: | awk '{ print $2}'",
-		"swap_free":        "cat /proc/meminfo | grep SwapFree: | awk '{ print $2}'",
-		"disk":             "df " + config.Disk + " | awk 'NR==2{print $3,$4}'",
-		"net_status_lo":    "cat /proc/net/dev | grep lo: | awk '{ print $2,$3,$10,$11}'",
-		"net_status":       "cat /proc/net/dev | grep " + config.Net + ": | awk '{ print $2,$3,$10,$11}'",
-	}
-
-	arch := runtime.GOARCH
-	if strings.Contains(arch, "arm") {
-		arch = "arm"
-	}
-
-	if arch != "arm" {
-		command["cpu_cores"] = "cat /proc/cpuinfo |grep 'cores' | uniq | awk '{ print $4 }'"
-		command["cpu_model_name"] = "lscpu | grep 'Model name'"
-		command["cpu_freq"] = "cat /proc/cpuinfo |grep MHz|uniq | awk '{ print $4 }'"
-	}
-
-	for k, v := range command {
-		res, err := Popen(v)
-		if err != nil {
-			// log.Fatal(err)
-			device[k] = "NaN"
-		}
-		res = strings.Replace(res, "\n", "", -1)
-		device[k] = res
-	}
-
-	device["current_user"] = config.LinuxUserInfo.Username
-
-	cpuTemperature, _ := strconv.Atoi(device["cpu_temperature"])
-	device["uptime"] = resolveTime(device["uptime"])
-	device["hostname"] = strings.Replace(strings.Replace(device["hostname"], " ", "", -1), "\n", "", -1)
-	if strings.Contains(device["system"], "\"") {
-		device["system"] = strings.Replace(strings.Replace(strings.Split(device["system"], "\"")[1], " GNU/Linux ", " ", -1), "\"", "", -1)
-	} else {
-		device["system"] = "NaN"
-	}
-
-	if arch == "arm" {
-		device["cpu_temperature"] = strconv.FormatFloat(float64(cpuTemperature)/1000, 'f', 1, 64)
-		if strings.Contains(device["model"], ":") {
-			device["model"] = strings.Split(device["model"], ":")[1]
-		} else {
-			device["model"] = "NaN"
-		}
-
-		for key, value := range piCpuModelInfo {
-			if strings.Contains(device["model"], key) {
-				device["cpu_revision"] = device["cpu_model_name"]
-				device["cpu_model_name"] = value
-				break
-			}
-		}
-
-	} else {
-		device["cpu_temperature"] = "NaN"
-		device["model"] = "Linux Computer"
-		if strings.Contains(device["cpu_model_name"], ":") {
-			device["cpu_model_name"] = strings.Trim(strings.Split(device["cpu_model_name"], ":")[1], " ")
-		} else {
-			device["cpu_model_name"] = "NaN"
-		}
-	}
-	if strings.Contains(strings.ToLower(device["model"]), "raspberry") {
-		device["device_photo"] = "raspberrypi.png"
-		device["favicon"] = "raspberrypi.ico"
-	} else {
-		device["device_photo"] = "linux.png"
-		device["favicon"] = "linux.ico"
-	}
-
-	device["login_user_count"] = strings.Split(device["login_user_count"], "=")[1]
-	device["ip"] = strings.Split(device["ip"], "/")[0]
-	device["now_time"] = time.Now().Format("2006-01-02 15:04:05")
-
-	loadAverage := strings.Split(device["load_average"], " ")
-	device["load_average_1m"] = loadAverage[0]
-	device["load_average_5m"] = loadAverage[1]
-	device["load_average_15m"] = loadAverage[2]
-	device["load_average_process_running"] = strings.Split(loadAverage[3], "/")[0]
-	device["load_average_process_total"] = strings.Split(loadAverage[3], "/")[1]
-	delete(device, "load_average")
-
-	cpuStatusRaw := device["cpu_status"]
-	exceptionSituation := []string{"id,", "wa,", "hi,", "si,"}
-	for _, exception := range exceptionSituation {
-		if exception == "id" {
-			cpuStatusRaw = strings.Replace(cpuStatusRaw, exception, "100.0", -1)
-		} else {
-			cpuStatusRaw = strings.Replace(cpuStatusRaw, exception, "0.0", -1)
-		}
-	}
-	cpuStatus := strings.Split(cpuStatusRaw, " ")
-	device["cpu_status_user"] = cpuStatus[0]
-	device["cpu_status_nice"] = cpuStatus[1]
-	device["cpu_status_system"] = cpuStatus[2]
-	device["cpu_status_idle"] = cpuStatus[3]
-	device["cpu_status_iowait"] = cpuStatus[4]
-	device["cpu_status_irq"] = cpuStatus[5]
-	device["cpu_status_softirq"] = cpuStatus[6]
-	delete(device, "cpu_status")
-	cpuUsed, _ := strconv.ParseFloat(device["cpu_used"], 64)
-	device["cpu_used"] = strconv.FormatFloat(cpuUsed, 'f', 1, 64)
-	if arch == "arm" {
-		cpuFreq, _ := strconv.ParseInt(device["cpu_freq"], 10, 64)
-		device["cpu_freq"] = strconv.FormatInt(cpuFreq/1000, 10)
-	} else {
-		device["cpu_freq"] = strings.Split(device["cpu_freq"], ".")[0]
-	}
-
-	nowTime := strings.Split(device["now_time"], " ")
-	device["now_time_ymd"] = nowTime[0]
-	device["now_time_hms"] = nowTime[1]
-	delete(device, "now_time")
-
-	diskSlice := strings.Split(device["disk"], " ")
-	device["disk_used"] = diskSlice[0]
-	device["disk_free"] = diskSlice[1]
-	delete(device, "disk")
-	device["disk_name"] = strings.ToUpper(config.Disk)
-	diskUsed, _ := strconv.ParseFloat(device["disk_used"], 64)
-	diskFree, _ := strconv.ParseFloat(device["disk_free"], 64)
-	device["disk_total"] = strconv.FormatFloat((diskFree+diskUsed)/1024/1024, 'f', 1, 64)
-	device["disk_used_percent"] = strconv.FormatFloat(100*diskUsed/(diskFree+diskUsed), 'f', 1, 64)
-	device["disk_used"] = strconv.FormatFloat(diskUsed/1024/1024, 'f', 1, 64)
-	device["disk_free"] = strconv.FormatFloat(diskFree/1024/1024, 'f', 1, 64)
-
-	device["net_dev_name"] = config.Net
-	netStatus := strings.Split(device["net_status"], " ")
-	device["net_status_in_data"] = netStatus[0]
-	device["net_status_in_package"] = netStatus[1]
-	device["net_status_out_data"] = netStatus[2]
-	device["net_status_out_package"] = netStatus[3]
-	delete(device, "net_status")
-	netInData, _ := strconv.ParseFloat(device["net_status_in_data"], 64)
-	netOutData, _ := strconv.ParseFloat(device["net_status_out_data"], 64)
-	device["net_status_in_data_format"] = bytesRound(netInData, 2)
-	device["net_status_out_data_format"] = bytesRound(netOutData, 2)
-	// device["net_status_in_data"] = strconv.FormatFloat(netInData/1024/1024, 'f', 1, 64)
-	// device["net_status_out_data"] = strconv.FormatFloat(netOutData/1024/1024, 'f', 1, 64)
-	inPackage, _ := strconv.ParseFloat(device["net_status_in_package"], 64)
-	outPackage, _ := strconv.ParseFloat(device["net_status_out_package"], 64)
-	netLoadAverage := (inPackage + outPackage) / 2
-	device["net_status_load_average"] = strconv.FormatFloat(netLoadAverage, 'f', 1, 64)
-
-	netStatusLo := strings.Split(device["net_status_lo"], " ")
-	device["net_status_lo_in_data"] = netStatusLo[0]
-	device["net_status_lo_in_package"] = netStatusLo[1]
-	device["net_status_lo_out_data"] = netStatusLo[2]
-	device["net_status_lo_out_package"] = netStatusLo[3]
-	delete(device, "net_status_lo")
-	netLoInData, _ := strconv.ParseFloat(device["net_status_lo_in_data"], 64)
-	netLoOutData, _ := strconv.ParseFloat(device["net_status_lo_out_data"], 64)
-	device["net_status_lo_in_data_format"] = bytesRound(netLoInData, 2)
-	device["net_status_lo_out_data_format"] = bytesRound(netLoOutData, 2)
-	// device["net_status_lo_in_data"] = strconv.FormatFloat(netLoInData/1024/1024, 'f', 1, 64)
-	// device["net_status_lo_out_data"] = strconv.FormatFloat(netLoOutData/1024/1024, 'f', 1, 64)
-	inLoPackage, _ := strconv.ParseFloat(device["net_status_lo_in_package"], 64)
-	outLoPackage, _ := strconv.ParseFloat(device["net_status_lo_out_package"], 64)
-	netLoLoadAverage := (inLoPackage + outLoPackage) / 2
-	device["net_status_lo_load_average"] = strconv.FormatFloat(netLoLoadAverage, 'f', 1, 64)
-
-	memoryCached, _ := strconv.ParseFloat(device["memory_cached"], 64)
-	memoryCached = memoryCached / 1024
-	device["memory_cached"] = strconv.FormatFloat(memoryCached, 'f', 1, 64)
-
-	memoryFree, _ := strconv.ParseFloat(device["memory_free"], 64)
-	memoryFree = memoryFree / 1024
-	device["memory_free"] = strconv.FormatFloat(memoryFree, 'f', 1, 64)
-
-	memoryAvailable, _ := strconv.ParseFloat(device["memory_available"], 64)
-	memoryAvailable = memoryAvailable / 1024
-	device["memory_available"] = strconv.FormatFloat(memoryAvailable, 'f', 1, 64)
-
-	memoryBuffers, _ := strconv.ParseFloat(device["memory_buffers"], 64)
-	memoryBuffers = memoryBuffers / 1024
-	device["memory_buffers"] = strconv.FormatFloat(memoryBuffers, 'f', 1, 64)
-
-	memoryTotal, _ := strconv.ParseFloat(device["memory_total"], 64)
-	memoryTotal = memoryTotal / 1024
-	device["memory_total"] = strconv.FormatFloat(memoryTotal, 'f', 1, 64)
-
-	device["memory_used"] = strconv.FormatFloat(memoryTotal-memoryFree, 'f', 1, 64)
-	device["memory_real_used"] = strconv.FormatFloat(memoryTotal-memoryAvailable, 'f', 1, 64)
-	device["memory_percent"] = strconv.FormatFloat(100*(memoryTotal-memoryFree)/memoryTotal, 'f', 1, 64)
-	device["memory_real_percent"] = strconv.FormatFloat(100*(memoryTotal-memoryAvailable)/memoryTotal, 'f', 1, 64)
-	device["memory_cached_percent"] = strconv.FormatFloat(100*(memoryCached)/memoryTotal, 'f', 1, 64)
-	swapFree, _ := strconv.ParseFloat(device["swap_free"], 64)
-	swapTotal, _ := strconv.ParseFloat(device["swap_total"], 64)
-	device["swap_free"] = strconv.FormatFloat(swapFree/1024, 'f', 1, 64)
-	device["swap_total"] = strconv.FormatFloat(swapTotal/1024, 'f', 1, 64)
-	device["swap_used"] = strconv.FormatFloat((swapTotal-swapFree)/1024, 'f', 1, 64)
-	device["swap_used_percent"] = strconv.FormatFloat(100*(swapTotal-swapFree)/swapTotal, 'f', 1, 64)
-	if swapFree == 0 && swapTotal == 0 {
-		device["swap_used_percent"] = "0.0"
-		device["swap_free"] = "0.0"
-		device["swap_total"] = "0.0"
-	}
-
-	return device
 }
 
 func resolveTime(str string) string {
@@ -339,4 +636,34 @@ func bytesRound(number, round float64) string {
 		last = strconv.FormatFloat(math.Round(number*math.Pow(10, round))/math.Pow(10, round), 'f', 1, 64) + "GB"
 	}
 	return last
+}
+
+func struct2Map(in interface{}, tagName string) (map[string]interface{}, error) {
+	out := make(map[string]interface{})
+
+	v := reflect.ValueOf(in)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	if v.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("ToMap only accepts struct or struct pointer; got %T", v)
+	}
+
+	t := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		fi := t.Field(i)
+		if tagValue := fi.Tag.Get(tagName); tagValue != "" {
+			out[tagValue] = v.Field(i).Interface()
+		}
+	}
+	return out, nil
+}
+
+func mergeMap(map1, map2 map[string]interface{}) map[string]interface{} {
+	for k, v := range map2 {
+		map1[k] = v
+	}
+
+	return map1
 }
