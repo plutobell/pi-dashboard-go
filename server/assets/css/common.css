@@ -3,8 +3,8 @@
 @Description: Golang implementation of pi-dashboard
 @Author: github.com/plutobell
 @Creation: 2020-08-01
-@Last modification: 2021-09-02
-@Version: 1.6.0
+@Last modification: 2023-04-05
+@Version: 1.7.0
 */
 
 ::-webkit-scrollbar {
@@ -20,36 +20,6 @@
     border-radius: 3.5px;
     background: rgba(0,0,0,0.12);
     -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-}
-
-:root {
-    --label-color: #979d9e;
-    --navbar-color: #555555;
-    --cache-color: #D9E4DD;
-    --cpu-memory-title-color: #CDC9C3;
-    --temperature-color: #FBF7F0;
-    --ip-color: #D9E4DD;
-    --time-color: #CDC9C3;
-    --uptime-color: #FBF7F0;
-    --cpu-color: #D9E4DD;
-    --memory-color: #D9E4DD;
-    --real-memory-color: #D9E4DD;
-    --swap-color: #D9E4DD;
-    --disk-color: #CDC9C3;
-    --box-bg-color: #eaebe9; /* #E8EAE6 */
-    --backdrop-color: #363636;
-
-    --guage-font-color: black;
-    --guage-stops-color-1: #D9E4DD;
-    --guage-stops-color-5: #CDC9C3;
-    --guage-stops-color-9: #919191;
-
-    --net-in-color: #D9E4DD;
-    --net-out-color: #CDC9C3;
-    --net-grid-line-color: #e6e6e6;
-    --net-line-color: #ccd6eb;
-
-    --box-radius: 15px;
 }
 
 .label {color: var(--label-color); font-size: 75%; font-weight: bolder;}

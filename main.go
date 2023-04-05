@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-09-02
-// @Version: 1.6.0
+// @Last modification: 2023-04-05
+// @Version: 1.7.0
 
 package main
 
@@ -29,10 +29,11 @@ func init() {
 	flag.StringVar(&config.Port, "port", "8080", "specify the running port")
 	flag.StringVar(&config.Title, "title", "Pi Dashboard Go", "specify the website title")
 	flag.StringVar(&config.Net, "net", "lo", "specify the network device")
-	flag.StringVar(&config.Disk, "disk", "/", "specify the disk")
+	flag.StringVar(&config.Disk, "disk", "/", "specify the filesystem path")
 	flag.StringVar(&config.Auth, "auth", config.USERNAME+":"+config.PASSWORD, "specify username and password")
 	flag.StringVar(&config.Interval, "interval", "1", "specify the update interval in seconds")
 	flag.StringVar(&config.SessionMaxAge, "session", "7", "specify the login status validity in days")
+	flag.StringVar(&config.Theme, "theme", "light", "specify the theme between 'light' and 'dark'")
 	flag.BoolVar(&config.EnableLogger, "log", false, "enable log display")
 
 	config.SessionName = "logged_in"
@@ -63,13 +64,17 @@ func main() {
 		fmt.Println("Network card does not exist")
 		return
 	}
-	diskLists, err := device.Popen("blkid")
-	if err != nil {
-		log.Fatal(err)
-		return
+	pathExists := false
+	_, err = os.Stat(config.Disk)
+	if err == nil {
+		pathExists = true
 	}
+	if os.IsNotExist(err) {
+		pathExists = false
+	}
+
 	if config.Disk != "/" {
-		if !strings.Contains(diskLists, config.Disk+":") {
+		if !pathExists {
 			fmt.Println("Disk does not exist")
 			return
 		}
@@ -130,6 +135,11 @@ func main() {
 		return
 	}
 
+	if config.Theme != "light" && config.Theme != "dark" {
+		fmt.Println("Theme name not supported")
+		return
+	}
+
 	server.Run()
 }
 
@@ -139,7 +149,7 @@ Project address: %s
 
 Usage: %s [-auth USR:PSW] [-disk Paths] [-help]
 [-interval Seconds] [-log] [-net NIC] [-port Port]
-[-session Days] [-title Title] [-version]
+[-session Days] [-theme Theme] [-title Title] [-version]
 
 Options:
 `, config.VERSION, config.PROJECT, config.FileName)

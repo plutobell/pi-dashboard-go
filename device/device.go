@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-09-02
-// @Version: 1.6.0
+// @Last modification: 2023-04-05
+// @Version: 1.7.0
 
 package device
 
@@ -29,7 +29,7 @@ import (
 	"github.com/shirou/gopsutil/v3/net"
 )
 
-//piCpuModelInfo Raspberry Pi CPU型号信息
+// piCpuModelInfo Raspberry Pi CPU型号信息
 var piCpuModelInfo = map[string]string{
 	"Raspberry Pi 4 Model B":  "BCM2711",
 	"Raspberry Pi 3 Model B+": "BCM2837B0",
@@ -44,7 +44,7 @@ var piCpuModelInfo = map[string]string{
 	"Raspberry Pi Zero":       "BCM2835",
 }
 
-//Command 命令列表
+// Command 命令列表
 var command map[string]string = map[string]string{
 	"ip":               "ip a | grep -w inet | grep -v inet6 | grep -v 127 | awk '{ print $2 }'",
 	"login_user_count": "who -q | awk 'NR==2{print $2}'",
@@ -562,7 +562,7 @@ func Info() map[string]interface{} {
 	return device
 }
 
-//Popen 函数用于执行系统命令
+// Popen 函数用于执行系统命令
 func Popen(command string) (string, error) {
 	cmd := exec.Command("/bin/bash", "-c", command)
 

@@ -1,5 +1,15 @@
 # Changelog #
 
+**2023-04-05**
+
+* v1.7.0 : 
+  * Added a cli parameter called theme #4
+  * Added proxy for version detection
+  * Fixed the bug of disk path detection
+  * Some other optimizations
+  * Updated dependencies
+  * Use Go v1.20.3
+
 **2021-09-02**
 
 * v1.6.0 : 

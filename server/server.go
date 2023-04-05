@@ -2,8 +2,8 @@
 // @Description: Golang implementation of pi-dashboard
 // @Author: github.com/plutobell
 // @Creation: 2020-08-01
-// @Last modification: 2021-09-02
-// @Version: 1.6.0
+// @Last modification: 2023-04-05
+// @Version: 1.7.0
 
 package server
 
@@ -35,17 +35,17 @@ import (
 //go:embed assets
 var assets embed.FS
 
-//Template 模板
+// Template 模板
 type Template struct {
 	templates *template.Template
 }
 
-//Render 渲染器
+// Render 渲染器
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-//Server 实例
+// Server 实例
 func Run() {
 	//Echo 实例
 	e := echo.New()
@@ -54,6 +54,8 @@ func Run() {
 	//注册中间件
 	e.Use(middleware.Recover())
 	e.Use(middleware.Secure())
+	e.Use(middleware.Decompress())
+	e.Use(middleware.Timeout())
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 9,
 	}))
@@ -122,6 +124,7 @@ func Index(c echo.Context) error {
 	device["version"] = config.VERSION
 	device["site_title"] = config.Title
 	device["interval"] = config.Interval
+	device["theme"] = config.Theme
 	device["go_version"] = runtime.Version()
 
 	return c.Render(http.StatusOK, "index.tmpl", device)
@@ -132,8 +135,8 @@ func Login(c echo.Context) error {
 
 	sess, _ := session.Get(config.SessionName, c)
 	//通过sess.Values读取会话数据
-	userName, _ := sess.Values["id"]
-	isLogin, _ := sess.Values["isLogin"]
+	userName := sess.Values["id"]
+	isLogin := sess.Values["isLogin"]
 
 	if userName == username && isLogin == true {
 		return c.Redirect(http.StatusTemporaryRedirect, "/")
@@ -143,6 +146,7 @@ func Login(c echo.Context) error {
 	device := make(map[string]string)
 	device["version"] = config.VERSION
 	device["site_title"] = config.Title
+	device["theme"] = config.Theme
 	device["go_version"] = runtime.Version()
 	device["device_photo"] = tempDevice["device_photo"].(string)
 	device["favicon"] = tempDevice["favicon"].(string)
@@ -158,8 +162,8 @@ func API(c echo.Context) error {
 
 		sess, _ := session.Get(config.SessionName, c)
 		//通过sess.Values读取会话数据
-		userName, _ := sess.Values["id"]
-		isLogin, _ := sess.Values["isLogin"]
+		userName := sess.Values["id"]
+		isLogin := sess.Values["isLogin"]
 
 		if userName == username && isLogin == true {
 			status := map[string]bool{
@@ -229,8 +233,8 @@ func API(c echo.Context) error {
 
 		sess, _ := session.Get(config.SessionName, c)
 		//通过sess.Values读取会话数据
-		userName, _ := sess.Values["id"]
-		isLogin, _ := sess.Values["isLogin"]
+		userName := sess.Values["id"]
+		isLogin := sess.Values["isLogin"]
 
 		if userName != username || isLogin != true {
 			status := map[string]string{
@@ -252,8 +256,8 @@ func API(c echo.Context) error {
 
 		sess, _ := session.Get(config.SessionName, c)
 		//通过sess.Values读取会话数据
-		userName, _ := sess.Values["id"]
-		isLogin, _ := sess.Values["isLogin"]
+		userName := sess.Values["id"]
+		isLogin := sess.Values["isLogin"]
 
 		if userName != username || isLogin != true {
 			status := map[string]string{
@@ -264,7 +268,7 @@ func API(c echo.Context) error {
 
 		operation := c.QueryParam("action")
 
-		if operation != "checknewversion" && isRootUser() != true {
+		if operation != "checknewversion" && !isRootUser() {
 			status := map[string]string{
 				"status": "NotRootUser",
 			}
@@ -358,7 +362,13 @@ func getLatestVersionFromGitHub() (
 
 	url := "https://api.github.com/repos/plutobell/pi-dashboard-go/releases/latest"
 
-	resp, err := http.Get(url)
+	client := http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+		},
+	}
+
+	resp, err := client.Get(url)
 	if err != nil {
 		panic(err)
 	}

@@ -44,18 +44,18 @@ chmod +x pi-dashboard-go
 **Pi Dashboard Go** can be configured via command line parameters：
 
 ```bash
-Pi Dashboard Go version: v1.6.0
+Pi Dashboard Go version: v1.7.0
 Project address: https://github.com/plutobell/pi-dashboard-go
 
 Usage: Pi Dashboard Go [-auth USR:PSW] [-disk Paths] [-help]
 [-interval Seconds] [-log] [-net NIC] [-port Port]
-[-session Days] [-title Title] [-version]
+[-session Days] [-theme Theme] [-title Title] [-version]
 
 Options:
   -auth string
         specify username and password (default "pi:123")
   -disk string
-        specify the disk (default "/")
+        specify the filesystem path (default "/")
   -help
         this help
   -interval string
@@ -68,6 +68,8 @@ Options:
         specify the running port (default "8080")
   -session string
         specify the login status validity in days (default "7")
+  -theme string
+        specify the theme between 'light' and 'dark' (default "light")
   -title string
         specify the website title (default "Pi Dashboard Go")
   -version
